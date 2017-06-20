@@ -15,6 +15,7 @@ import java.util.stream.Stream;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
+import org.joda.time.MutableDateTime;
 
 public class WordUtils {
 
@@ -284,10 +285,18 @@ public class WordUtils {
 	}
 
 	private Stream<WordBean> getNewwords(List<WordBean> allList) {
-		List<WordBean> newList = allList.stream().filter(p -> p.getTimes() == 0).collect(Collectors.toList());
+		final int now = Integer.valueOf(DateTime.now().toString("yyyyMMdd"));
 
+		List<WordBean> newList = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= now).collect(Collectors.toList());
+				
 		long count = newList.stream().map(m -> m.getNextTime()).distinct().count();
 
+		// no news
+		if (count == 0) {
+			return new ArrayList<WordBean>().stream();
+		}
+		
+		// one day
 		if (count == 1) {
 			return newList.stream();
 		}
@@ -339,7 +348,10 @@ public class WordUtils {
 
 		// new word don's have next time
 		if (times == 0) {
-			target.setNextTime(Integer.parseInt(DateTime.now().toString("yyyyMMdd")));
+			MutableDateTime now = MutableDateTime.now();
+			now.addDays(1);
+			
+			target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
 			return;
 		}
 
