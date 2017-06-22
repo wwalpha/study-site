@@ -116,7 +116,7 @@ public class WordBean {
 
 		DateTime b = new DateTime(Calendar.getInstance().getTime());
 
-		int days = Days.daysBetween(a, b).getDays();
+		int days = Days.daysBetween(a, b).getDays() + 1;
 
 		return days * 10 * times;
 	}

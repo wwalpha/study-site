@@ -5,8 +5,10 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -22,6 +24,7 @@ public class WordUtils {
 	private static final Integer OFFSET = 7;
 	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
 	private static final Integer DAY_LIMIT = 150;
+	private static final Integer TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd"));
 	private static WordUtils utils;
 
 	private WordUtils() {
@@ -192,8 +195,9 @@ public class WordUtils {
 	 */
 	public static void save(String userName, List<UpdateBean> list) {
 		List<WordBean> allList = utils.getAllList();
-
-		for (final UpdateBean bean : list) {
+		List<UpdateBean> newList = utils.distinct(list);
+		
+		for (final UpdateBean bean : newList) {
 			// find the word in the file by same user
 			WordBean[] result = allList.stream().filter(b -> StringUtils.equals(bean.getWord(), b.getWord())
 					&& StringUtils.equals(userName, b.getUserName())).toArray(size -> new WordBean[size]);
@@ -213,6 +217,25 @@ public class WordUtils {
 
 		// save data to file
 		utils.saveFile(allList);
+	}
+
+	private List<UpdateBean> distinct(List<UpdateBean> updateList) {
+		Map<String, UpdateBean> map = new HashMap<>();
+
+		for (UpdateBean bean : updateList) {
+			if (map.containsKey(bean.getWord())) {
+				UpdateBean updateBean = map.get(bean.getWord());
+
+				updateBean.setChecked(updateBean.isChecked() ? true : bean.isChecked());
+				updateBean.setFavorite(updateBean.isFavorite() ? true : bean.isFavorite());
+
+				continue;
+			}
+
+			map.put(bean.getWord(), bean);
+		}
+
+		return new ArrayList<>(map.values());
 	}
 
 	public static String download(String userName) {
@@ -254,7 +277,7 @@ public class WordUtils {
 		switch (type) {
 		case "1":
 			// new
-			long count = allList.stream().filter(p -> p.getTimes() == 0).count();
+			long count = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= TODAY).count();
 
 			// new words from review
 			if (count == 0L) {
@@ -268,7 +291,7 @@ public class WordUtils {
 			break;
 		case "2":
 			// review
-			stream = allList.stream().filter(p -> p.getTimes() != 0);
+			stream = allList.stream().filter(p -> p.getTimes() != 0 && p.getNextTime() <= TODAY);
 
 			break;
 		case "3":
@@ -285,17 +308,16 @@ public class WordUtils {
 	}
 
 	private Stream<WordBean> getNewwords(List<WordBean> allList) {
-		final int now = Integer.valueOf(DateTime.now().toString("yyyyMMdd"));
+		List<WordBean> newList = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= TODAY)
+				.collect(Collectors.toList());
 
-		List<WordBean> newList = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= now).collect(Collectors.toList());
-				
 		long count = newList.stream().map(m -> m.getNextTime()).distinct().count();
 
 		// no news
 		if (count == 0) {
 			return new ArrayList<WordBean>().stream();
 		}
-		
+
 		// one day
 		if (count == 1) {
 			return newList.stream();
@@ -350,7 +372,7 @@ public class WordUtils {
 		if (times == 0) {
 			MutableDateTime now = MutableDateTime.now();
 			now.addDays(1);
-			
+
 			target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
 			return;
 		}
