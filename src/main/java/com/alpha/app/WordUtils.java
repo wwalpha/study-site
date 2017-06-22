@@ -184,6 +184,26 @@ public class WordUtils {
 			}
 		}
 
+		if (StringUtils.equals("3", type)) {
+			if (userList.size() <= OFFSET.intValue()) {
+				retList.addAll(userList);
+
+				return retList;
+			}
+
+			while (retList.size() < OFFSET) {
+				WordBean newWord = userList.get(new Random().nextInt(userList.size()));
+
+				if (set.contains(newWord.getWord())) {
+					continue;
+				}
+
+				set.add(newWord.getWord());
+
+				retList.add(newWord);
+			}
+		}
+
 		return retList;
 	}
 
@@ -196,7 +216,7 @@ public class WordUtils {
 	public static void save(String userName, List<UpdateBean> list) {
 		List<WordBean> allList = utils.getAllList();
 		List<UpdateBean> newList = utils.distinct(list);
-		
+
 		for (final UpdateBean bean : newList) {
 			// find the word in the file by same user
 			WordBean[] result = allList.stream().filter(b -> StringUtils.equals(bean.getWord(), b.getWord())
@@ -213,6 +233,8 @@ public class WordUtils {
 			utils.updateTimes(target, bean);
 			// update next time
 			utils.updateNextTime(target, allList.stream());
+			// update favorite
+			target.setFavorite(bean.isFavorite());
 		}
 
 		// save data to file

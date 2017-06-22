@@ -17084,7 +17084,7 @@ var App = function (_Component) {
           datas: row,
           visible: _this2.props.visible,
           onCheck: _this2.props.actions.onCheck,
-          onFavorite: _this2.props.actions.onFavorite
+          onFavorite: _this2.props.actions.favorite
         }));
       });
 
@@ -18036,7 +18036,7 @@ var api = function api(store) {
     return function (action) {
       if (["SWITCH_TYPE"].includes(action.type)) {
         next({
-          type: "CLEAR_CURRENT"
+          type: "CLEAR_WORDS"
         });
       }
 
