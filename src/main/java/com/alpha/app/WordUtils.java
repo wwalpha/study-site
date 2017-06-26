@@ -245,7 +245,7 @@ public class WordUtils {
 			// update times
 			utils.updateTimes(target, bean);
 			// update next time
-			utils.updateNextTime(target, allList.stream());
+			utils.updateNextTime(target, allList);
 		}
 
 		// save data to file
@@ -398,7 +398,7 @@ public class WordUtils {
 	 * @param target
 	 * @param stream
 	 */
-	private void updateNextTime(WordBean target, Stream<WordBean> stream) {
+	private void updateNextTime(WordBean target, List<WordBean> list) {
 		int times = target.getTimes();
 
 		// new word don's have next time
@@ -430,7 +430,7 @@ public class WordUtils {
 			final int time = nextTime;
 
 			// count the same day's words
-			long count = stream.filter(w -> w.getNextTime() == time).count();
+			long count = list.stream().filter(w -> w.getNextTime() == time).count();
 
 			// over the limit of days
 			if (count == DAY_LIMIT) {

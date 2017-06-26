@@ -35,6 +35,7 @@ public class InitSound {
 		List<WordBean> wordList = new ArrayList<WordBean>();
 
 		int count = 0;
+
 		for (String line : allLines) {
 			if (StringUtils.isEmpty(line)) {
 				continue;
