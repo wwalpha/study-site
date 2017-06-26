@@ -21,6 +21,11 @@ public class WordCtrl {
 		return ResponseEntity.ok(WordUtils.getUsers());
 	}
 
+	@RequestMapping("/{user}/{type}/playlist")
+	public ResponseEntity<List<String>> playlist(@PathVariable String user, @PathVariable String type) {
+		return null;
+	}
+
 	@RequestMapping("/{user}/{type}/nextpage")
 	public ResponseEntity<List<WordBean>> nextPage(@PathVariable String user, @PathVariable String type) {
 		return ResponseEntity.ok(WordUtils.getNextList(user, type));

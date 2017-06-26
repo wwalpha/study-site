@@ -1,7 +1,9 @@
 package com.alpha.app;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Comparator;
@@ -9,25 +11,56 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class WordUtils {
 
-	private static final Integer OFFSET = 7;
+	private static Integer OFFSET = 7;
+	private static Integer DAY_LIMIT = 150;
+	private static String DB_FILE = "C:\\work\\wordDB.txt";
 	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
-	private static final Integer DAY_LIMIT = 150;
 	private static final Integer TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd"));
 	private static WordUtils utils;
 
 	private WordUtils() {
+		ServletContext context = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()
+				.getServletContext();
+
+		String file = context.getRealPath("/WEB-INF/classes/settings.properties");
+
+		Properties properties = new Properties();
+
+		InputStream is = null;
+		try {
+			is = new FileInputStream(file);
+			properties.load(new FileInputStream(file));
+		} catch (IOException e) {
+			return;
+		} finally {
+			if (is != null) {
+				try {
+					is.close();
+				} catch (IOException e) {
+				}
+			}
+		}
+
+		OFFSET = Integer.valueOf(properties.get("PAGE_OFFSET").toString());
+		DAY_LIMIT = Integer.valueOf(properties.get("DAY_LIMIT").toString());
+		DB_FILE = properties.getProperty("DB_FILE").toString();
 	}
 
 	static {
@@ -129,7 +162,7 @@ public class WordUtils {
 		// .getServletContext();
 		//
 		// return new File(context.getRealPath("/WEB-INF/classes/wordDB.txt"));
-		return new File("C:\\work\\wordDB.txt");
+		return new File(DB_FILE);
 	}
 
 	public static List<String> getUsers() {
@@ -184,26 +217,6 @@ public class WordUtils {
 			}
 		}
 
-		if (StringUtils.equals("3", type)) {
-			if (userList.size() <= OFFSET.intValue()) {
-				retList.addAll(userList);
-
-				return retList;
-			}
-
-			while (retList.size() < OFFSET) {
-				WordBean newWord = userList.get(new Random().nextInt(userList.size()));
-
-				if (set.contains(newWord.getWord())) {
-					continue;
-				}
-
-				set.add(newWord.getWord());
-
-				retList.add(newWord);
-			}
-		}
-
 		return retList;
 	}
 
@@ -233,8 +246,6 @@ public class WordUtils {
 			utils.updateTimes(target, bean);
 			// update next time
 			utils.updateNextTime(target, allList.stream());
-			// update favorite
-			target.setFavorite(bean.isFavorite());
 		}
 
 		// save data to file
