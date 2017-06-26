@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3000")
@@ -43,15 +44,20 @@ public class WordCtrl {
 	public ResponseEntity<List<String>> download(@PathVariable String user, @PathVariable String type) {
 		List<String> list = new ArrayList<String>();
 		list.add(WordUtils.download(user));
-		
+
 		return ResponseEntity.ok(list);
 	}
 
-	@RequestMapping("/{user}/upload")
+	@RequestMapping(value = "/{user}/upload", method = RequestMethod.POST)
 	public HttpStatus upload(@PathVariable String user, @RequestBody Object fileData) {
 		WordUtils.upload(user, null);
 
 		return HttpStatus.OK;
 	}
 
+	@RequestMapping(value = "/{user}/settings", method = RequestMethod.POST)
+	public HttpStatus settings(@PathVariable String user, MultipartFile file) {
+		WordUtils.updateSettings(user, file);
+		return HttpStatus.OK;
+	}
 }
