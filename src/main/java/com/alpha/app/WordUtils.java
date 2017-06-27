@@ -31,12 +31,15 @@ import com.alpha.bean.WordBean;
 
 public class WordUtils {
 
-	private static Integer OFFSET = 7;
-	private static Integer DAY_LIMIT = 150;
+	private static final String PAGE_OFFSET = "PAGE_OFFSET";
+	private static final String DAY_LIMIT = "DAY_LIMIT";
+	private static final String DB_FOLDER = "DB_FOLDER";
+	private static final String DB_FILE = "DB_FILE";
+	private static final String USER_PATH = "/WEB-INF/classes/users/";
+
 	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
 	private static final Integer TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd"));
 	private static WordUtils utils;
-	private static final String USER_PATH = "/WEB-INF/classes/users/";
 
 	private static Map<String, Properties> userMap = new HashMap<>();
 
@@ -186,14 +189,10 @@ public class WordUtils {
 	 * @return
 	 */
 	private List<String> getAllLines(String userName) {
-		Properties prop = userMap.get(userName);
-
-		String dbPath = prop.getProperty("DB_FOLDER");
-		String dbFile = prop.getProperty("DB_FILE");
+		String dbPath = this.getValue(userName, DB_FOLDER);
+		String[] files = this.getFiles(userName, DB_FILE);
 
 		List<String> allLines = new ArrayList<String>();
-
-		String[] files = dbFile.split("|");
 
 		for (String file : files) {
 			if (StringUtils.isEmpty(file)) {
@@ -265,7 +264,9 @@ public class WordUtils {
 
 		// review words
 		if (StringUtils.equals("2", type)) {
-			while (retList.size() < OFFSET) {
+			Integer offset = Integer.valueOf(utils.getValue(userName, PAGE_OFFSET));
+
+			while (retList.size() < offset) {
 				WordBean newWord = utils.getNextWord(userList);
 
 				if (set.contains(newWord.getWord())) {
@@ -288,11 +289,8 @@ public class WordUtils {
 	 * @param list
 	 */
 	public static void save(String userName, List<UpdateBean> list) {
-		Properties props = userMap.get(userName);
-
-		String dbPath = props.getProperty("DB_FOLDER");
-		String dbFile = props.getProperty("DB_FILE");
-		String[] files = dbFile.split("|");
+		String dbPath = utils.getValue(userName, DB_FOLDER);
+		String[] files = utils.getFiles(userName, DB_FILE);
 
 		// distinct
 		List<UpdateBean> newList = utils.distinct(list);
@@ -322,10 +320,10 @@ public class WordUtils {
 				// update times
 				utils.updateTimes(target, bean);
 				// update next time
-				utils.updateNextTime(target, allList);
+				utils.updateNextTime(userName, target, allList);
 			}
 
-			utils.saveFile(f, null);
+			utils.saveFile(f, allList);
 		}
 	}
 
@@ -504,7 +502,7 @@ public class WordUtils {
 	 * @param target
 	 * @param stream
 	 */
-	private void updateNextTime(WordBean target, List<WordBean> list) {
+	private void updateNextTime(String userName, WordBean target, List<WordBean> list) {
 		int times = target.getTimes();
 
 		// new word don's have next time
@@ -537,9 +535,10 @@ public class WordUtils {
 
 			// count the same day's words
 			long count = list.stream().filter(w -> w.getNextTime() == time).count();
+			Integer dayLimit = Integer.valueOf(utils.getValue(userName, DAY_LIMIT));
 
 			// over the limit of days
-			if (count == DAY_LIMIT) {
+			if (count == dayLimit) {
 				nextTime++;
 
 				continue;
@@ -593,6 +592,30 @@ public class WordUtils {
 
 			return resultList.get(0);
 		}
+	}
+
+	/**
+	 * get value form property file
+	 * 
+	 * @param userName
+	 * @param key
+	 * @return
+	 */
+	private String getValue(String userName, String key) {
+		return userMap.get(userName).getProperty(key).toString();
+	}
+
+	/**
+	 * get value form property file
+	 * 
+	 * @param userName
+	 * @param key
+	 * @return
+	 */
+	private String[] getFiles(String userName, String key) {
+		String dbFile = userMap.get(userName).getProperty("DB_FILE").toString();
+
+		return dbFile.split("\\|");
 	}
 
 	/**

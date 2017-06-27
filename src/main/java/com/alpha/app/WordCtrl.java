@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.alpha.bean.ResultBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.WordBean;
 
@@ -60,9 +59,9 @@ public class WordCtrl {
 	}
 
 	@RequestMapping(value = "/settings", method = RequestMethod.POST)
-	public ResponseEntity<ResultBean> settings(MultipartFile file) {
+	public ResponseEntity<String> settings(MultipartFile file) {
 		boolean result = WordUtils.updateSettings(file);
 
-		return result ? ResponseEntity.ok(new ResultBean(true)) : ResponseEntity.noContent().build();
+		return result ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
 	}
 }
