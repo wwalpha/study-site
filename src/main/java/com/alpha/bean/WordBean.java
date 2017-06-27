@@ -1,4 +1,4 @@
-package com.alpha.app;
+package com.alpha.bean;
 
 import java.util.ArrayList;
 import java.util.Calendar;

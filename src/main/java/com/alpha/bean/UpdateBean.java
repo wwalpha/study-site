@@ -1,4 +1,4 @@
-package com.alpha.app;
+package com.alpha.bean;
 
 public class UpdateBean {
 	private String word;

@@ -1,4 +1,4 @@
-package com.alpha.app;
+package com.alpha.tools;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,6 +16,8 @@ import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
+
+import com.alpha.bean.WordBean;
 
 public class InitSound {
 
