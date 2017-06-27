@@ -46,7 +46,11 @@ public class WordUtils {
 	private WordUtils() {
 		ServletContext context = getContext();
 		File userFolder = new File(context.getRealPath(USER_PATH));
-
+		
+		if (!userFolder.exists()) {
+			userFolder.mkdir();
+		}
+		
 		for (File file : userFolder.listFiles()) {
 			String userName = file.getName().replace(".properties", StringUtils.EMPTY);
 
@@ -244,6 +248,8 @@ public class WordUtils {
 			return retList;
 		}
 
+		Integer offset = Integer.valueOf(utils.getValue(userName, PAGE_OFFSET));
+		
 		// new words
 		if (StringUtils.equals("1", type)) {
 			int maxInt = userList.size() > 49 ? 49 : userList.size();
@@ -256,7 +262,7 @@ public class WordUtils {
 					retList.add(userList.get(nextInt));
 				}
 
-				if (retList.size() == 7) {
+				if (retList.size() == offset) {
 					break;
 				}
 			}
@@ -264,8 +270,6 @@ public class WordUtils {
 
 		// review words
 		if (StringUtils.equals("2", type)) {
-			Integer offset = Integer.valueOf(utils.getValue(userName, PAGE_OFFSET));
-
 			while (retList.size() < offset) {
 				WordBean newWord = utils.getNextWord(userList);
 
