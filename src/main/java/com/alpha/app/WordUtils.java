@@ -26,6 +26,9 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alpha.bean.UpdateBean;
+import com.alpha.bean.WordBean;
+
 public class WordUtils {
 
 	private static Integer OFFSET = 7;
@@ -371,7 +374,11 @@ public class WordUtils {
 	 * @param user
 	 * @param file
 	 */
-	public static void updateSettings(String user, MultipartFile file) {
+	public static boolean updateSettings(MultipartFile file) {
+		if (!file.getOriginalFilename().endsWith(".properties")) {
+			return false;
+		}
+
 		String path = utils.getContext().getRealPath(USER_PATH);
 
 		File settingFile = new File(path + file.getOriginalFilename());
@@ -381,8 +388,13 @@ public class WordUtils {
 		} catch (IllegalStateException | IOException e) {
 		}
 
+		int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
+		String user = file.getOriginalFilename().substring(0, endIdx);
+
 		// reinit user's informations
 		utils.initSettings(user);
+
+		return true;
 	}
 
 	/**
