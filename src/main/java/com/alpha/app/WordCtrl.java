@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.WordBean;
 
@@ -25,9 +26,9 @@ public class WordCtrl {
 		return ResponseEntity.ok(WordUtils.getUsers());
 	}
 
-	@RequestMapping("/{user}/{type}/playlist")
-	public ResponseEntity<List<String>> playlist(@PathVariable String user, @PathVariable String type) {
-		return null;
+	@RequestMapping("/{user}/playlist")
+	public ResponseEntity<List<PlayListBean>> playlist(@PathVariable String user) {
+		return ResponseEntity.ok(WordUtils.getPlayList(user));
 	}
 
 	@RequestMapping("/{user}/{type}/nextpage")

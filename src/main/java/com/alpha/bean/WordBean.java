@@ -17,6 +17,7 @@ public class WordBean {
 	private String pronounce;
 	private String vocabulary;
 	private int nextTime;
+	private int studyTime;
 	private int times;
 	private int startPos;
 	private int endPos;
@@ -181,21 +182,6 @@ public class WordBean {
 		this.favorite = favorite;
 	}
 
-	public String toString() {
-		List<String> retList = new ArrayList<String>();
-
-		retList.add(userName);
-		retList.add(word);
-		retList.add(pronounce);
-		retList.add(vocabulary);
-		retList.add(StringUtils.leftPad(String.valueOf(nextTime), 8, "0"));
-		retList.add(String.valueOf(times));
-		retList.add(Boolean.toString(favorite));
-		retList.add(sound);
-
-		return StringUtils.join(retList, "|");
-	}
-
 	/**
 	 * @return the sound
 	 */
@@ -225,4 +211,35 @@ public class WordBean {
 	public void setIndex(int index) {
 		this.index = index;
 	}
+
+	/**
+	 * @return the studyTime
+	 */
+	public int getStudyTime() {
+		return studyTime;
+	}
+
+	/**
+	 * @param studyTime the studyTime to set
+	 */
+	public void setStudyTime(int studyTime) {
+		this.studyTime = studyTime;
+	}
+	
+	public String toString() {
+		List<String> retList = new ArrayList<String>();
+
+		retList.add(userName);
+		retList.add(word);
+		retList.add(pronounce);
+		retList.add(vocabulary);
+		retList.add(StringUtils.leftPad(String.valueOf(nextTime), 8, "0"));
+		retList.add(String.valueOf(times));
+		retList.add(Boolean.toString(favorite));
+		retList.add(sound);
+		retList.add(String.valueOf(studyTime));
+
+		return StringUtils.join(retList, "|");
+	}
+
 }

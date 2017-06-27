@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.WordBean;
 
@@ -46,11 +48,11 @@ public class WordUtils {
 	private WordUtils() {
 		ServletContext context = getContext();
 		File userFolder = new File(context.getRealPath(USER_PATH));
-		
+
 		if (!userFolder.exists()) {
 			userFolder.mkdir();
 		}
-		
+
 		for (File file : userFolder.listFiles()) {
 			String userName = file.getName().replace(".properties", StringUtils.EMPTY);
 
@@ -170,6 +172,10 @@ public class WordUtils {
 			try {
 				bean.setNextTime(Integer.parseInt(datas[4]));
 				bean.setTimes(Integer.parseInt(datas[5]));
+
+				if (datas.length >= 9) {
+					bean.setStudyTime(Integer.parseInt(datas[8]));
+				}
 			} catch (NumberFormatException e) {
 				// not use error date
 				continue;
@@ -177,10 +183,7 @@ public class WordUtils {
 
 			bean.setFavorite(Boolean.parseBoolean(datas[6]));
 			bean.setIndex(index++);
-
-			if (datas.length != 7) {
-				bean.setSound(datas[7]);
-			}
+			bean.setSound(datas[7]);
 
 			retList.add(bean);
 		}
@@ -219,6 +222,11 @@ public class WordUtils {
 		return allLines;
 	}
 
+	/**
+	 * get all users
+	 * 
+	 * @return
+	 */
 	public static List<String> getUsers() {
 
 		ServletContext context = utils.getContext();
@@ -249,9 +257,9 @@ public class WordUtils {
 		}
 
 		Integer offset = Integer.valueOf(utils.getValue(userName, PAGE_OFFSET));
-		
+
 		// new words
-		if (StringUtils.equals("1", type)) {
+		if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
 			int maxInt = userList.size() > 49 ? 49 : userList.size();
 
 			for (;;) {
@@ -280,6 +288,14 @@ public class WordUtils {
 				set.add(newWord.getWord());
 
 				retList.add(newWord);
+			}
+		}
+
+		if (StringUtils.equals("3", type)) {
+			if (userList.size() > offset) {
+				retList.addAll(userList.subList(0, offset - 1));
+			} else {
+				retList.addAll(userList);
 			}
 		}
 
@@ -325,6 +341,10 @@ public class WordUtils {
 				utils.updateTimes(target, bean);
 				// update next time
 				utils.updateNextTime(userName, target, allList);
+				// update study time
+				if (!bean.isChecked()) {
+					target.setStudyTime(TODAY);
+				}
 			}
 
 			utils.saveFile(f, allList);
@@ -400,6 +420,34 @@ public class WordUtils {
 	}
 
 	/**
+	 * Today's words for play sound
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	public static List<PlayListBean> getPlayList(String userName) {
+		List<WordBean> allList = utils.getAllList(userName);
+
+		if (allList.size() == 0) {
+			return new ArrayList<PlayListBean>();
+		}
+
+		return allList.stream().filter(p -> p.getStudyTime() == TODAY && StringUtils.isNotEmpty(p.getSound()))
+				.map(m -> {
+					PlayListBean bean = new PlayListBean();
+					bean.setSource(m.getSound());
+
+					if (m.getSound().endsWith(".wav")) {
+						bean.setType("audio/wav");
+					} else if (m.getSound().endsWith(".mp3")) {
+						bean.setType("audio/mp3");
+					}
+
+					return bean;
+				}).collect(Collectors.toList());
+	}
+
+	/**
 	 * get steam by type
 	 * 
 	 * @param userName
@@ -417,6 +465,7 @@ public class WordUtils {
 
 		switch (type) {
 		case "1":
+		case "4":
 			// new
 			long count = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= TODAY).count();
 
