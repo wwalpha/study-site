@@ -23689,7 +23689,7 @@ exports = module.exports = __webpack_require__(304)(undefined);
 
 
 // module
-exports.push([module.i, "._2Rv2A5LSTjWTZoeu_BzmaN {\r\n  display: table;\r\n  table-layout: fixed;\r\n  text-align: left;\r\n  width: 100%;\r\n  margin-top: 4px;\r\n  padding-left: 12px;\r\n  height: 32px;\r\n  line-height: 32px;\r\n}\r\n\r\n._7ne8MAl-nUJcSIp9Lrvww {\r\n  display: table-cell;\r\n  vertical-align: middle;\r\n}", ""]);
+exports.push([module.i, "._2Rv2A5LSTjWTZoeu_BzmaN {\n  display: table;\n  table-layout: fixed;\n  text-align: left;\n  width: 100%;\n  margin-top: 4px;\n  padding-left: 12px;\n  height: 32px;\n  line-height: 32px;\n}\n\n._7ne8MAl-nUJcSIp9Lrvww {\n  display: table-cell;\n  vertical-align: middle;\n}", ""]);
 
 // exports
 exports.locals = {
