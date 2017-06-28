@@ -21,21 +21,36 @@ import com.alpha.bean.WordBean;
 @CrossOrigin(origins = "http://localhost:3000")
 public class WordCtrl {
 
+	/**
+	 * user list
+	 * 
+	 * @return
+	 */
 	@RequestMapping("/users")
 	public ResponseEntity<List<String>> users() {
 		return ResponseEntity.ok(WordUtils.getUsers());
 	}
 
-	@RequestMapping("/{user}/playlist")
-	public ResponseEntity<List<PlayListBean>> playlist(@PathVariable String user) {
-		return ResponseEntity.ok(WordUtils.getPlayList(user));
-	}
-
+	/**
+	 * user next type's word
+	 * 
+	 * @param user
+	 * @param type
+	 * @return
+	 */
 	@RequestMapping("/{user}/{type}/nextpage")
 	public ResponseEntity<List<WordBean>> nextPage(@PathVariable String user, @PathVariable String type) {
 		return ResponseEntity.ok(WordUtils.getNextList(user, type));
 	}
 
+	/**
+	 * user word save
+	 * 
+	 * @param user
+	 * @param type
+	 * @param reqlist
+	 * @return
+	 */
 	@RequestMapping(value = "/{user}/{type}/save", method = RequestMethod.POST)
 	public ResponseEntity<List<WordBean>> save(@PathVariable String user, @PathVariable String type,
 			@RequestBody List<UpdateBean> reqlist) {
@@ -44,14 +59,27 @@ public class WordCtrl {
 		return ResponseEntity.ok(WordUtils.getNextList(user, type));
 	}
 
-	@RequestMapping(value = "/{user}/{type}/download", method = RequestMethod.GET, produces = "application/json")
-	public ResponseEntity<List<String>> download(@PathVariable String user, @PathVariable String type) {
+	/**
+	 * user download
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping(value = "/{user}/download", method = RequestMethod.GET, produces = "application/json")
+	public ResponseEntity<List<String>> download(@PathVariable String user) {
 		List<String> list = new ArrayList<String>();
 		list.add(WordUtils.download(user));
 
 		return ResponseEntity.ok(list);
 	}
 
+	/**
+	 * user upload
+	 * 
+	 * @param user
+	 * @param fileData
+	 * @return
+	 */
 	@RequestMapping(value = "/{user}/upload", method = RequestMethod.POST)
 	public HttpStatus upload(@PathVariable String user, @RequestBody Object fileData) {
 		WordUtils.upload(user, null);
@@ -59,6 +87,23 @@ public class WordCtrl {
 		return HttpStatus.OK;
 	}
 
+	/**
+	 * user playlist
+	 * 
+	 * @param user
+	 * @return
+	 */
+	@RequestMapping("/{user}/playlist")
+	public ResponseEntity<List<PlayListBean>> playlist(@PathVariable String user) {
+		return ResponseEntity.ok(WordUtils.getPlayList(user));
+	}
+
+	/**
+	 * settings
+	 * 
+	 * @param file
+	 * @return
+	 */
 	@RequestMapping(value = "/settings", method = RequestMethod.POST)
 	public ResponseEntity<String> settings(MultipartFile file) {
 		boolean result = WordUtils.updateSettings(file);

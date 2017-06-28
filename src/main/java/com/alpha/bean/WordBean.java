@@ -237,7 +237,7 @@ public class WordBean {
 		retList.add(String.valueOf(times));
 		retList.add(Boolean.toString(favorite));
 		retList.add(sound);
-		retList.add(String.valueOf(studyTime));
+		retList.add(StringUtils.leftPad(String.valueOf(nextTime), 8, "0"));
 
 		return StringUtils.join(retList, "|");
 	}

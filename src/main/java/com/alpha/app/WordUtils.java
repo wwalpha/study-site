@@ -40,7 +40,7 @@ public class WordUtils {
 	private static final String USER_PATH = "/WEB-INF/classes/users/";
 
 	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
-	private static final Integer TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd"));
+	private static final int TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd")).intValue();
 	private static WordUtils utils;
 
 	private static Map<String, Properties> userMap = new HashMap<>();
@@ -84,50 +84,19 @@ public class WordUtils {
 		New, Review, Favorite,
 	}
 
+	/**
+	 * all files information of user
+	 * 
+	 * @param userName
+	 * @return
+	 */
 	private List<WordBean> getAllList(String userName) {
-		List<WordBean> retList = new ArrayList<>();
 		List<String> allLines = getAllLines(userName);
+		List<WordBean> retList = cnvWordBean(allLines);
 
 		int pos = 1;
-		int index = 1;
 
-		for (String line : allLines) {
-			if (StringUtils.isEmpty(line)) {
-				continue;
-			}
-
-			String[] datas = line.split("\\|");
-
-			if (datas.length < 6) {
-				continue;
-			}
-
-			// only read datas of same username
-			if (StringUtils.isNotEmpty(userName) && !StringUtils.equals(userName, datas[0])) {
-				continue;
-			}
-
-			WordBean bean = new WordBean();
-			bean.setUserName(datas[0]);
-			bean.setWord(datas[1]);
-			bean.setPronounce(datas[2]);
-			bean.setVocabulary(datas[3]);
-
-			try {
-				bean.setNextTime(Integer.parseInt(datas[4]));
-				bean.setTimes(Integer.parseInt(datas[5]));
-			} catch (NumberFormatException e) {
-				// not use error date
-				continue;
-			}
-
-			bean.setFavorite(Boolean.parseBoolean(datas[6]));
-			bean.setIndex(index++);
-
-			if (datas.length != 7) {
-				bean.setSound(datas[7]);
-			}
-
+		for (WordBean bean : retList) {
 			int rate = bean.getRate();
 
 			if (rate != 0) {
@@ -139,16 +108,31 @@ public class WordUtils {
 			}
 
 			pos += rate;
-
-			retList.add(bean);
 		}
 
 		return retList;
 	}
 
+	/**
+	 * one file's informations
+	 * 
+	 * @param file
+	 * @return
+	 */
 	private List<WordBean> getAllList(File file) {
-		List<WordBean> retList = new ArrayList<>();
 		List<String> allLines = XFileUtils.readLines(file, "UTF-8");
+
+		return cnvWordBean(allLines);
+	}
+
+	/**
+	 * line → wordbean
+	 * 
+	 * @param allLines
+	 * @return
+	 */
+	private List<WordBean> cnvWordBean(List<String> allLines) {
+		List<WordBean> retList = new ArrayList<>();
 
 		int index = 1;
 
@@ -183,7 +167,10 @@ public class WordUtils {
 
 			bean.setFavorite(Boolean.parseBoolean(datas[6]));
 			bean.setIndex(index++);
-			bean.setSound(datas[7]);
+
+			if (datas.length >= 8) {
+				bean.setSound(datas[7]);
+			}
 
 			retList.add(bean);
 		}
