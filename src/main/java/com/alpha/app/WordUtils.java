@@ -423,12 +423,7 @@ public class WordUtils {
 				.map(m -> {
 					PlayListBean bean = new PlayListBean();
 					bean.setSource(m.getSound());
-
-					if (m.getSound().endsWith(".wav")) {
-						bean.setType("audio/wav");
-					} else if (m.getSound().endsWith(".mp3")) {
-						bean.setType("audio/mp3");
-					}
+					bean.setWord(m.getWord());
 
 					return bean;
 				}).collect(Collectors.toList());

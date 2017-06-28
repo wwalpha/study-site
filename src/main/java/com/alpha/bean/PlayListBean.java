@@ -2,7 +2,7 @@ package com.alpha.bean;
 
 public class PlayListBean {
 	private String source;
-	private String type;
+	private String word;
 
 	/**
 	 * @return the source
@@ -20,17 +20,18 @@ public class PlayListBean {
 	}
 
 	/**
-	 * @return the type
+	 * @return the word
 	 */
-	public String getType() {
-		return type;
+	public String getWord() {
+		return word;
 	}
 
 	/**
-	 * @param type
-	 *            the type to set
+	 * @param word
+	 *            the word to set
 	 */
-	public void setType(String type) {
-		this.type = type;
+	public void setWord(String word) {
+		this.word = word;
 	}
+
 }
