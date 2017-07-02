@@ -35,9 +35,10 @@ public class WordUtils {
 
 	private static final String PAGE_OFFSET = "PAGE_OFFSET";
 	private static final String DAY_LIMIT = "DAY_LIMIT";
-	private static final String DB_FOLDER = "DB_FOLDER";
-	private static final String DB_FILE = "DB_FILE";
+	// private static final String DB_FOLDER = "DB_FOLDER";
+	// private static final String DB_FILE = "DB_FILE";
 	private static final String USER_PATH = "/WEB-INF/classes/users/";
+	private static final String DB_PATH = "/WEB-INF/classes/worddb/";
 
 	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
 	private static final int TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd")).intValue();
@@ -47,10 +48,17 @@ public class WordUtils {
 
 	private WordUtils() {
 		ServletContext context = getContext();
+
 		File userFolder = new File(context.getRealPath(USER_PATH));
 
 		if (!userFolder.exists()) {
 			userFolder.mkdir();
+		}
+
+		File dbFolder = new File(context.getRealPath(DB_PATH));
+
+		if (!dbFolder.exists()) {
+			dbFolder.mkdir();
 		}
 
 		for (File file : userFolder.listFiles()) {
@@ -183,8 +191,9 @@ public class WordUtils {
 	 * @return
 	 */
 	private List<String> getAllLines(String userName) {
-		String dbPath = this.getValue(userName, DB_FOLDER);
-		String[] files = this.getFiles(userName, DB_FILE);
+
+		String dbPath = getDBPath(userName);
+		String[] files = new File(dbPath).list();
 
 		List<String> allLines = new ArrayList<String>();
 
@@ -296,8 +305,8 @@ public class WordUtils {
 	 * @param list
 	 */
 	public static void save(String userName, List<UpdateBean> list) {
-		String dbPath = utils.getValue(userName, DB_FOLDER);
-		String[] files = utils.getFiles(userName, DB_FILE);
+		String dbPath = utils.getDBPath(userName);
+		String[] files = new File(dbPath).list();
 
 		// distinct
 		List<UpdateBean> newList = utils.distinct(list);
@@ -367,14 +376,17 @@ public class WordUtils {
 		return StringUtils.join(allLines, "◆");
 	}
 
-	public static String upload(String userName, String allText) {
-		List<WordBean> userList = utils.getAllList(userName);
+	public static boolean upload(String userName, MultipartFile file) {
+		String path = utils.getDBPath(userName);
 
-		List<String> allLines = new ArrayList<>();
+		File dbFile = new File(path + file.getOriginalFilename());
 
-		userList.stream().forEach(b -> allLines.add(b.toString()));
+		try {
+			file.transferTo(dbFile);
+		} catch (IllegalStateException | IOException e) {
+		}
 
-		return "{file: \"" + StringUtils.join(allLines, "\n") + "\"}";
+		return true;
 	}
 
 	/**
@@ -399,6 +411,12 @@ public class WordUtils {
 
 		int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
 		String user = file.getOriginalFilename().substring(0, endIdx);
+
+		File userDBPath = new File(utils.getDBPath(user));
+
+		if (!userDBPath.exists()) {
+			userDBPath.mkdirs();
+		}
 
 		// reinit user's informations
 		utils.initSettings(user);
@@ -641,18 +659,14 @@ public class WordUtils {
 	}
 
 	/**
-	 * get value form property file
-	 * 
+	 * real db file path
 	 * @param userName
-	 * @param key
 	 * @return
 	 */
-	private String[] getFiles(String userName, String key) {
-		String dbFile = userMap.get(userName).getProperty("DB_FILE").toString();
-
-		return dbFile.split("\\|");
+	private String getDBPath(String userName) {
+		return getContext().getRealPath(DB_PATH + userName + "/");
 	}
-
+	
 	/**
 	 * 
 	 * @return

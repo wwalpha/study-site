@@ -3,7 +3,6 @@ package com.alpha.app;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -81,10 +80,10 @@ public class WordCtrl {
 	 * @return
 	 */
 	@RequestMapping(value = "/{user}/upload", method = RequestMethod.POST)
-	public HttpStatus upload(@PathVariable String user, @RequestBody Object fileData) {
-		WordUtils.upload(user, null);
+	public ResponseEntity<String> upload(@PathVariable String user, MultipartFile file) {
+		boolean result = WordUtils.upload(user, file);
 
-		return HttpStatus.OK;
+		return result ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
 	}
 
 	/**
