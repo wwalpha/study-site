@@ -1,11 +1,7 @@
 package com.alpha.app;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,16 +11,10 @@ import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.servlet.ServletContext;
-
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.joda.time.DateTime;
 import org.joda.time.MutableDateTime;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alpha.bean.PlayListBean;
@@ -34,12 +24,9 @@ import com.alpha.tools.DBUtils;
 
 public class WordUtils3 {
 
-	private static final String PAGE_OFFSET = "PAGE_OFFSET";
-	private static final String DAY_LIMIT = "DAY_LIMIT";
 	// private static final String DB_FOLDER = "DB_FOLDER";
 	// private static final String DB_FILE = "DB_FILE";
 	private static final int TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd")).intValue();
-	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
 
 	private static WordUtils3 utils;
 
@@ -140,7 +127,8 @@ public class WordUtils3 {
 			return retList;
 		}
 
-		Integer offset = 0;// Integer.valueOf(utils.getValue(userName, PAGE_OFFSET));
+		Integer offset = 7;// Integer.valueOf(utils.getValue(userName,
+							// PAGE_OFFSET));
 
 		// new words
 		if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
@@ -193,30 +181,14 @@ public class WordUtils3 {
 	 * @param list
 	 */
 	public static void save(String userName, List<UpdateBean> list) {
-
 		List<UpdateBean> newList = utils.distinct(list);
-		List<WordBean> allList = utils.getAllList(userName);
 
 		for (final UpdateBean bean : newList) {
-			// find the word in the file by same user
-			WordBean[] result = allList.stream().filter(b -> StringUtils.equals(bean.getWord(), b.getWord())
-					&& StringUtils.equals(userName, b.getUserName())).toArray(size -> new WordBean[size]);
+			String strSQL = utils.getUpdateSQL(bean);
+			List<Object> params = utils.getUpdateParams(userName, bean);
 
-			// if can not find user, skip
-			if (result.length == 0) {
-				continue;
-			}
-
-			WordBean target = result[0];
-
-			// update times
-			utils.updateTimes(target, bean);
-			// update next time
-			utils.updateNextTime(userName, target, allList);
-			// update study time
-			if (!bean.isChecked()) {
-				target.setStudyTime(TODAY);
-			}
+			// execute update
+			DBUtils.update(strSQL, params.toArray());
 		}
 	}
 
@@ -268,28 +240,28 @@ public class WordUtils3 {
 	 * @param user
 	 * @param file
 	 */
-	public static boolean updateSettings(MultipartFile file) {
-		if (!file.getOriginalFilename().endsWith(".properties")) {
-			return false;
-		}
-
-		String path = utils.getContext().getRealPath(USER_PATH);
-
-		File settingFile = new File(path + file.getOriginalFilename());
-
-		try {
-			file.transferTo(settingFile);
-		} catch (IllegalStateException | IOException e) {
-		}
-
-		int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
-		String user = file.getOriginalFilename().substring(0, endIdx);
-
-		// reinit user's informations
-		utils.initSettings(user);
-
-		return true;
-	}
+//	public static boolean updateSettings(MultipartFile file) {
+//		if (!file.getOriginalFilename().endsWith(".properties")) {
+//			return false;
+//		}
+//
+//		String path = utils.getContext().getRealPath(USER_PATH);
+//
+//		File settingFile = new File(path + file.getOriginalFilename());
+//
+//		try {
+//			file.transferTo(settingFile);
+//		} catch (IllegalStateException | IOException e) {
+//		}
+//
+//		int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
+//		String user = file.getOriginalFilename().substring(0, endIdx);
+//
+//		// reinit user's informations
+//		utils.initSettings(user);
+//
+//		return true;
+//	}
 
 	/**
 	 * Today's words for play sound
@@ -347,15 +319,13 @@ public class WordUtils3 {
 	 * @param target
 	 * @param bean
 	 */
-	private void updateTimes(WordBean target, UpdateBean bean) {
-		if (bean.isChecked()) {
-			target.setTimes(0);
-
-			return;
-		}
-
-		target.setTimes(target.getTimes() + 1);
-	}
+	// private int updateTimes(WordBean target, UpdateBean bean) {
+	// if (bean.isChecked()) {
+	// return 0;
+	// }
+	//
+	// return target.getTimes() + 1;
+	// }
 
 	/**
 	 * Update the Next Time Column
@@ -363,53 +333,53 @@ public class WordUtils3 {
 	 * @param target
 	 * @param stream
 	 */
-	private void updateNextTime(String userName, WordBean target, List<WordBean> list) {
-		int times = target.getTimes();
-
-		// new word don's have next time
-		if (times == 0) {
-			MutableDateTime now = MutableDateTime.now();
-			now.addDays(1);
-
-			target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
-			return;
-		}
-
-		int interval = INTERVAL[times - 1];
-
-		Calendar sysTime = Calendar.getInstance();
-		// add interval days
-		sysTime.add(Calendar.DAY_OF_MONTH, interval);
-
-		DateTime dt = new DateTime(sysTime.getTime());
-		int nextTime = Integer.parseInt(dt.toString("yyyyMMdd"));
-
-		// if the times less than 3, set the next time
-		if (target.getTimes() < 3) {
-			target.setNextTime(nextTime);
-
-			return;
-		}
-
-		while (true) {
-			final int time = nextTime;
-
-			// count the same day's words
-			long count = list.stream().filter(w -> w.getNextTime() == time).count();
-			Integer dayLimit = Integer.valueOf(utils.getValue(userName, DAY_LIMIT));
-
-			// over the limit of days
-			if (count == dayLimit) {
-				nextTime++;
-
-				continue;
-			}
-
-			target.setNextTime(nextTime);
-
-			return;
-		}
-	}
+//	private void updateNextTime(String userName, WordBean target, List<WordBean> list) {
+//		int times = target.getTimes();
+//
+//		// new word don's have next time
+//		if (times == 0) {
+//			MutableDateTime now = MutableDateTime.now();
+//			now.addDays(1);
+//
+//			target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
+//			return;
+//		}
+//
+//		int interval = INTERVAL[times - 1];
+//
+//		Calendar sysTime = Calendar.getInstance();
+//		// add interval days
+//		sysTime.add(Calendar.DAY_OF_MONTH, interval);
+//
+//		DateTime dt = new DateTime(sysTime.getTime());
+//		int nextTime = Integer.parseInt(dt.toString("yyyyMMdd"));
+//
+//		// if the times less than 3, set the next time
+//		if (target.getTimes() < 3) {
+//			target.setNextTime(nextTime);
+//
+//			return;
+//		}
+//
+//		while (true) {
+//			final int time = nextTime;
+//
+//			// count the same day's words
+//			long count = list.stream().filter(w -> w.getNextTime() == time).count();
+//			Integer dayLimit = Integer.valueOf(utils.getValue(userName, DAY_LIMIT));
+//
+//			// over the limit of days
+//			if (count == dayLimit) {
+//				nextTime++;
+//
+//				continue;
+//			}
+//
+//			target.setNextTime(nextTime);
+//
+//			return;
+//		}
+//	}
 
 	/**
 	 * get next word of type 2
@@ -438,4 +408,63 @@ public class WordUtils3 {
 		}
 	}
 
+	/**
+	 * get update sql
+	 * 
+	 * @param bean
+	 * @return
+	 */
+	private String getUpdateSQL(UpdateBean bean) {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("UPDATE WORDS SET ");
+
+		// 回数リセット
+		if (bean.isChecked()) {
+			sb.append("UPDATE WORDS SET TIMES = 0 ");
+			sb.append(",NEXT_TIME = ? ");
+		} else {
+			sb.append("UPDATE WORDS SET TIMES = TIMES + 1 ");
+			sb.append(",STUDY_TIME = ? ");
+			sb.append(",NEXT_TIME = ? ");
+		}
+
+		sb.append(",FAVORITE = ? ");
+		sb.append("WHERE USER_ID = ? AND WORD = ?");
+
+		return sb.toString();
+	}
+
+	/**
+	 * get update parameters
+	 * 
+	 * @param userName
+	 * @param bean
+	 * @return
+	 */
+	private List<Object> getUpdateParams(String userName, UpdateBean bean) {
+		List<Object> retList = new ArrayList<Object>();
+
+		if (!bean.isChecked()) {
+			// STUDY_TIME
+			retList.add(TODAY);
+			// NEXT_TIME
+			retList.add("???");
+		} else {
+			// NEXT_TIME
+			MutableDateTime now = MutableDateTime.now();
+			now.addDays(1);
+
+			retList.add(Integer.parseInt(now.toString("yyyyMMdd")));
+		}
+
+		// FAVORITE
+		retList.add(Boolean.toString(bean.isFavorite()));
+		// USER
+		retList.add(userName);
+		// WORD
+		retList.add(bean.getWord());
+
+		return retList;
+	}
 }

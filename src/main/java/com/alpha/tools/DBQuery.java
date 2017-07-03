@@ -31,6 +31,10 @@ class DBQuery<T> {
 		this.clazz = clazz;
 	}
 
+	DBQuery(String url, String userName, String password) {
+		this(null, url, userName, password);
+	}
+
 	/**
 	 * select execute
 	 * 
@@ -68,6 +72,59 @@ class DBQuery<T> {
 
 		return retList;
 
+	}
+
+	/**
+	 * 
+	 * @param strSQL
+	 * @param params
+	 * @return
+	 */
+	public int update(String strSQL, Object... params) {
+		try {
+			this.conn = getConnection();
+			this.stmt = conn.prepareStatement(strSQL);
+		} catch (SQLException e) {
+			this.close();
+			return 0;
+		}
+
+		try {
+			for (int i = 0; i < params.length; ++i) {
+				if (params[i] instanceof String) {
+					this.stmt.setString(i + 1, (String) params[i]);
+				}
+			}
+
+			return this.stmt.executeUpdate();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		return 0;
+	}
+	
+	public int insert(String strSQL, Object... params) {
+		try {
+			this.conn = getConnection();
+			this.stmt = conn.prepareStatement(strSQL);
+		} catch (SQLException e) {
+			this.close();
+			return 0;
+		}
+		
+		try {
+			this.stmt.setString(1, (String) params[0]);
+			this.stmt.setString(2, (String) params[1]);
+			this.stmt.setString(3, (String) params[2]);
+			this.stmt.setString(4, (String) params[3]);
+			this.stmt.setString(5, (String) params[4]);
+			this.stmt.setString(6, (String) params[5]);
+	
+			this.stmt.addBatch();
+		} catch (SQLException e) {
+			this.close();
+		}
 	}
 
 	private T setValue(ResultSet rs, ResultSetMetaData metaData) throws Exception {
