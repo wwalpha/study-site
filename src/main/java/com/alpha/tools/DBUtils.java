@@ -5,6 +5,7 @@ import java.util.List;
 public class DBUtils {
 
 	public static final String SELECT_ALL = "";
+	public static final String SELECT_USERS = "";
 
 	public static final String SELECT_NEWWORD = "";
 	public static final String UPDATE_NEWWORD = "";
