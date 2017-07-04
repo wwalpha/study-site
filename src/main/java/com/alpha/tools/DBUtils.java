@@ -12,11 +12,13 @@ import com.alpha.bean.WordBean;
 
 public class DBUtils {
 
-	public static final String SELECT_ALL = "";
+	public static final String SELECT_ALL = "SELECT USER_ID AS USERNAME, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? ";
 	public static final String SELECT_USERS = "SELECT USER_ID FROM USERS";
 
-	public static final String SELECT_NEWWORD = "SELECT DISTINCT WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= CAST(DATE_FORMAT(NOW(),'%Y%m%d') AS UNSIGNED) AND (TIMES = 0 OR TIMES = 9999) ORDER BY TIMES, NEXT_TIME DESC LIMIT 49";
-	public static final String SELECT_REVIEW = "SELECT DISTINCT WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= CAST(DATE_FORMAT(NOW(),'%Y%m%d') AS UNSIGNED) AND TIMES <> 0 ";
+	public static final String SELECT_NEWWORD = "SELECT DISTINCT USER_ID AS USERNAME, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= DATE_FORMAT(NOW(),'%Y%m%d') AND (TIMES = 0 OR TIMES = 9999) ORDER BY TIMES, NEXT_TIME DESC LIMIT 49";
+	public static final String SELECT_REVIEW = "SELECT DISTINCT USER_ID AS USERNAME, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= DATE_FORMAT(NOW(),'%Y%m%d') AND TIMES <> 0 ";
+	public static final String SELECT_PLAYLIST = "SELECT WORD, SOUND FROM WORDS WHERE USER_ID = ? AND STUDY_TIME = DATE_FORMAT(NOW(),'%Y%m%d') AND SOUND IS NOT NULL ORDER BY WORD_NO";
+
 	public static final String UPDATE_WORDS = "UPDATE WORDS SET TIMES = TIMES + 1, STUDY_TIME = ?, NEXT_TIME = ?, FAVORITE = ? WHERE USER_ID = ? AND WORD = ?";
 
 	public static final String SELECT_SETTINGS = "";
@@ -32,10 +34,13 @@ public class DBUtils {
 	private DBUtils() {
 	}
 
-	private static final String USER_NAME = "root";
-	private static final String PASSWORD = "";
-	private static final String URL = "jdbc:mysql://localhost:3306/alpha?useUnicode=true&characterEncoding=utf8";
-
+//	private static final String USER_NAME = "root";
+//	private static final String PASSWORD = "session10";
+//	private static final String URL = "jdbc:mysql://localhost:8808/worddb?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
+	private static final String URL = "jdbc:mysql://alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com:3306/StudySite?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
+	private static final String USER_NAME = "wwalpha";
+	private static final String PASSWORD = "session10";
+	
 	/**
 	 * SELECT EXECUTE
 	 * 
@@ -78,11 +83,11 @@ public class DBUtils {
 	}
 
 	public static void main(String[] args) throws Exception {
-		DBQuery query = new DBQuery(String.class, URL, USER_NAME, PASSWORD);
+		// DBQuery query = new DBQuery(String.class, URL, USER_NAME, PASSWORD);
+		//
+		// query.testConnection();
 
-		query.testConnection();
-
-		File f = new File("c:/work/wordDB.txt");
+		File f = new File("D:/Java/wordDB.txt");
 
 		List<String> allLines = FileUtils.readLines(f, "UTF-8");
 		List<WordBean> retList = new ArrayList<>();
@@ -150,8 +155,8 @@ public class DBUtils {
 			sb.append("  ,'").append(bean.getWord()).append("' ");
 			sb.append("  ,'").append(bean.getPronounce()).append("' ");
 			sb.append("  ,'").append(bean.getVocabulary()).append("' ");
-			sb.append("  ,").append(bean.getNextTime());
-			sb.append("  ,").append(bean.getStudyTime());
+			sb.append("  ,'").append(bean.getNextTime()).append("' ");
+			sb.append("  ,'").append(bean.getStudyTime()).append("' ");
 			sb.append("  ,").append(bean.getTimes());
 			sb.append("  ,'").append(BooleanUtils.toString(bean.isFavorite(), "1", "0")).append("' ");
 

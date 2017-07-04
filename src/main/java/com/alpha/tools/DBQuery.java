@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
+
 class DBQuery<T> {
 
 	private String url;
@@ -43,12 +45,17 @@ class DBQuery<T> {
 	 * @param params
 	 * @return
 	 */
-	public List<T> select(String strSQL, Object params) {
+	@SuppressWarnings("unchecked")
+	public List<T> select(String strSQL, Object... params) {
 		List<T> retList = new ArrayList<T>();
 
+		System.out.println(strSQL);
 		try {
 			this.conn = getConnection();
 			this.stmt = conn.prepareStatement(strSQL);
+
+			this.setParameters(params);
+
 			this.rs = stmt.executeQuery();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -58,31 +65,28 @@ class DBQuery<T> {
 
 		initFieldMap();
 
-		
-		
 		try {
 			ResultSetMetaData metaData = rs.getMetaData();
 
-			System.out.println(rs.getString(0));
-			if (clazz.equals(String.class)) {
-				retList.add((T)rs.getString(0));
-			} else if (clazz.equals(Integer.class)) {	
-				retList.add((T)Integer.valueOf(rs.getInt(1)));
-			} else {
-				while (rs.next()) {
+			while (rs.next()) {
+				if (clazz.equals(String.class)) {
+					retList.add((T) rs.getString(1));
+				} else if (clazz.equals(Integer.class)) {
+					retList.add((T) Integer.valueOf(rs.getInt(1)));
+				} else {
 					T bean = setValue(rs, metaData);
 
 					retList.add(bean);
-				}	
+				}
 			}
-			
+
 		} catch (Exception e) {
+			e.printStackTrace();
 		} finally {
 			this.close();
 		}
 
 		return retList;
-
 	}
 
 	/**
@@ -93,6 +97,7 @@ class DBQuery<T> {
 	 */
 	public int update(String strSQL, Object... params) {
 		try {
+			System.out.println(strSQL);
 			this.conn = getConnection();
 			this.stmt = conn.prepareStatement(strSQL);
 		} catch (SQLException e) {
@@ -101,11 +106,7 @@ class DBQuery<T> {
 		}
 
 		try {
-			for (int i = 0; i < params.length; ++i) {
-				if (params[i] instanceof String) {
-					this.stmt.setString(i + 1, (String) params[i]);
-				}
-			}
+			setParameters(params);
 
 			return this.stmt.executeUpdate();
 		} catch (SQLException e) {
@@ -148,8 +149,8 @@ class DBQuery<T> {
 		int columnCount = metaData.getColumnCount();
 		T bean = clazz.newInstance();
 
-		for (int i = 0; i < columnCount; i++) {
-			String columnName = metaData.getColumnName(i).toUpperCase();
+		for (int i = 1; i <= columnCount; i++) {
+			String columnName = metaData.getColumnLabel(i).toUpperCase();
 
 			if (!this.fieldMap.containsKey(columnName)) {
 				continue;
@@ -158,7 +159,14 @@ class DBQuery<T> {
 			Field field = this.fieldMap.get(columnName);
 
 			field.setAccessible(true);
-			field.set(bean, rs.getObject(i));
+
+			if (field.getType().equals(String.class)) {
+				field.set(bean, rs.getObject(i));
+			} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
+				field.setBoolean(bean, BooleanUtils.toBoolean(Integer.parseInt(rs.getString(i)), 1, 0));
+			} else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
+				field.setInt(bean, Integer.parseInt(rs.getString(i)));
+			}
 		}
 
 		return bean;
@@ -169,10 +177,22 @@ class DBQuery<T> {
 	 */
 	private void initFieldMap() {
 		this.fieldMap = new HashMap<>();
-		Field[] fields = this.clazz.getFields();
+		Field[] fields = this.clazz.getDeclaredFields();
 
 		for (Field field : fields) {
 			this.fieldMap.put(field.getName().toUpperCase(), field);
+		}
+	}
+
+	/**
+	 * 
+	 * @param stmt
+	 * @param params
+	 * @throws SQLException
+	 */
+	private void setParameters(Object... params) throws SQLException {
+		for (int i = 0; i < params.length; ++i) {
+			stmt.setString(i + 1, String.valueOf(params[i]));
 		}
 	}
 
@@ -220,14 +240,14 @@ class DBQuery<T> {
 		stmt = null;
 		conn = null;
 	}
-	
+
 	public void testConnection() {
 		try {
 			this.getConnection();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		System.out.println("success");
 	}
 }

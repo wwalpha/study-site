@@ -3212,7 +3212,7 @@ Object.defineProperty(exports, "__esModule", {
 // export const WEB_SITE = 'http://localhost:8080/studysite';
 var WEB_SITE = exports.WEB_SITE = '.';
 
-var VERSION = exports.VERSION = 'Ver1.0.0';
+var VERSION = exports.VERSION = 'Ver1.0.1';
 
 var METHOD = exports.METHOD = {
   GET: 'GET',
@@ -48501,6 +48501,8 @@ var _colors = __webpack_require__(57);
 
 var _FileUtils = __webpack_require__(562);
 
+var _FileUtils2 = _interopRequireDefault(_FileUtils);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -48526,7 +48528,7 @@ var DLButton = function (_Component) {
         var blob = new Blob([fileData], { type: 'text' });
         var uri = URL.createObjectURL(blob);
 
-        (0, _FileUtils.SaveAs)(uri, this.props.fileName);
+        (0, _FileUtils2.default)(uri, this.props.fileName);
 
         return false;
       }
@@ -48620,7 +48622,7 @@ exports.default = FileFileDownload;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-var SaveAs = function saveAs(uri, filename) {
+var SaveAs = function SaveAs(uri, filename) {
   var link = document.createElement('a');
 
   if (typeof link.download === 'string') {

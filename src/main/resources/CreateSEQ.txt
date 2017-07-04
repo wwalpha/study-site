@@ -54,4 +54,4 @@ BEGIN
     RETURN currval(seq_name);
 END
 
-INSERT INTO sequence VALUES ('WordSeq', 0, 1);
+INSERT INTO sequence VALUES ('WORDSEQ', 0, 1);

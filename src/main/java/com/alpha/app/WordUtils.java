@@ -1,87 +1,30 @@
 package com.alpha.app;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
-import javax.servlet.ServletContext;
-
-import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.joda.time.DateTime;
-import org.joda.time.MutableDateTime;
-import org.springframework.web.context.request.RequestContextHolder;
-import org.springframework.web.context.request.ServletRequestAttributes;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.WordBean;
+import com.alpha.tools.DBUtils;
 
 public class WordUtils {
 
-	private static final String PAGE_OFFSET = "PAGE_OFFSET";
-	private static final String DAY_LIMIT = "DAY_LIMIT";
-	// private static final String DB_FOLDER = "DB_FOLDER";
-	// private static final String DB_FILE = "DB_FILE";
-	private static final String USER_PATH = "/WEB-INF/classes/users/";
-	private static final String DB_PATH = "/WEB-INF/classes/worddb/";
-
-	private static final int[] INTERVAL = new int[] { 1, 1, 1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 30, 60, 90 };
-	private static final int TODAY = Integer.valueOf(DateTime.now().toString("yyyyMMdd")).intValue();
 	private static WordUtils utils;
 
-	private static Map<String, Properties> userMap = new HashMap<>();
-
 	private WordUtils() {
-		ServletContext context = getContext();
-
-		File userFolder = new File(context.getRealPath(USER_PATH));
-
-		if (!userFolder.exists()) {
-			userFolder.mkdir();
-		}
-
-		File dbFolder = new File(context.getRealPath(DB_PATH));
-
-		if (!dbFolder.exists()) {
-			dbFolder.mkdir();
-		}
-
-		for (File file : userFolder.listFiles()) {
-			String userName = file.getName().replace(".properties", StringUtils.EMPTY);
-
-			userMap.put(userName, XFileUtils.LoadProperties(file));
-		}
-	}
-
-	/**
-	 * init user's settings
-	 * 
-	 * @param user
-	 */
-	private void initSettings(String user) {
-		ServletContext context = getContext();
-		String userFile = USER_PATH + user + ".properties";
-
-		String filePath = context.getRealPath(userFile);
-
-		Properties prop = XFileUtils.LoadProperties(filePath);
-
-		userMap.put(user, prop);
 	}
 
 	static {
@@ -92,130 +35,75 @@ public class WordUtils {
 		New, Review, Favorite,
 	}
 
+	private List<WordBean> getAllList(String userName) {
+		return getAllList(userName, null);
+	}
+
 	/**
 	 * all files information of user
 	 * 
 	 * @param userName
 	 * @return
 	 */
-	private List<WordBean> getAllList(String userName) {
-		List<String> allLines = getAllLines(userName);
-		List<WordBean> retList = cnvWordBean(allLines);
+	private List<WordBean> getAllList(String userName, String type) {
+		List<WordBean> retList = getWordList(userName, type);
 
-		int pos = 1;
+		if (StringUtils.isNotEmpty(type)) {
+			int pos = 1;
 
-		for (WordBean bean : retList) {
-			int rate = bean.getRate();
+			for (WordBean bean : retList) {
+				int rate = bean.getRate();
 
-			if (rate != 0) {
-				bean.setStartPos(pos);
-				bean.setEndPos(pos + rate - 1);
-			} else {
-				bean.setStartPos(0);
-				bean.setEndPos(0);
-			}
-
-			pos += rate;
-		}
-
-		return retList;
-	}
-
-	/**
-	 * one file's informations
-	 * 
-	 * @param file
-	 * @return
-	 */
-	private List<WordBean> getAllList(File file) {
-		List<String> allLines = XFileUtils.readLines(file, "UTF-8");
-
-		return cnvWordBean(allLines);
-	}
-
-	/**
-	 * line → wordbean
-	 * 
-	 * @param allLines
-	 * @return
-	 */
-	private List<WordBean> cnvWordBean(List<String> allLines) {
-		List<WordBean> retList = new ArrayList<>();
-
-		int index = 1;
-
-		for (String line : allLines) {
-			if (StringUtils.isEmpty(line)) {
-				continue;
-			}
-
-			String[] datas = line.split("\\|");
-
-			if (datas.length < 6) {
-				continue;
-			}
-
-			WordBean bean = new WordBean();
-			bean.setUserName(datas[0]);
-			bean.setWord(datas[1]);
-			bean.setPronounce(datas[2]);
-			bean.setVocabulary(datas[3]);
-
-			try {
-				bean.setNextTime(Integer.parseInt(datas[4]));
-				bean.setTimes(Integer.parseInt(datas[5]));
-
-				if (datas.length >= 9) {
-					bean.setStudyTime(Integer.parseInt(datas[8]));
+				if (rate != 0) {
+					bean.setStartPos(pos);
+					bean.setEndPos(pos + rate - 1);
+				} else {
+					bean.setStartPos(0);
+					bean.setEndPos(0);
 				}
-			} catch (NumberFormatException e) {
-				// not use error date
-				continue;
+
+				pos += rate;
 			}
-
-			bean.setFavorite(Boolean.parseBoolean(datas[6]));
-			bean.setIndex(index++);
-
-			if (datas.length >= 8) {
-				bean.setSound(datas[7]);
-			}
-
-			retList.add(bean);
 		}
 
 		return retList;
 	}
 
 	/**
+	 * word list by type
 	 * 
+	 * @param userName
+	 * @param type
 	 * @return
 	 */
-	private List<String> getAllLines(String userName) {
+	private List<WordBean> getWordList(String userName, String type) {
 
-		String dbPath = getDBPath(userName);
-		String[] files = new File(dbPath).list();
-
-		List<String> allLines = new ArrayList<String>();
-
-		for (String file : files) {
-			if (StringUtils.isEmpty(file)) {
-				continue;
-			}
-
-			String fullPath = Paths.get(dbPath, file).toString();
-			File f = new File(fullPath);
-
-			if (!f.exists()) {
-				continue;
-			}
-
-			try {
-				allLines.addAll(FileUtils.readLines(f, "UTF-8"));
-			} catch (IOException e) {
-			}
+		if (StringUtils.isEmpty(type)) {
+			return DBUtils.select(WordBean.class, DBUtils.SELECT_ALL);
 		}
 
-		return allLines;
+		if (StringUtils.equals("1", type) || StringUtils.equals("4", type)) {
+			return DBUtils.select(WordBean.class, DBUtils.SELECT_NEWWORD, userName);
+		}
+
+		if (StringUtils.equals("2", type)) {
+			return DBUtils.select(WordBean.class, DBUtils.SELECT_REVIEW, userName);
+		}
+
+		if (StringUtils.equals("3", type)) {
+			return DBUtils.select(WordBean.class, DBUtils.SELECT_ALL);
+		}
+
+		return new ArrayList<WordBean>();
+	}
+
+	/**
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	private List<WordBean> getTodayList(String userName) {
+		return DBUtils.select(WordBean.class, DBUtils.SELECT_PLAYLIST, userName);
 	}
 
 	/**
@@ -224,17 +112,7 @@ public class WordUtils {
 	 * @return
 	 */
 	public static List<String> getUsers() {
-
-		ServletContext context = utils.getContext();
-		File userFolder = new File(context.getRealPath(USER_PATH));
-
-		List<String> users = new ArrayList<String>();
-
-		for (File file : userFolder.listFiles()) {
-			users.add(file.getName().replace(".properties", StringUtils.EMPTY));
-		}
-
-		return users;
+		return DBUtils.select(String.class, DBUtils.SELECT_USERS);
 	}
 
 	/**
@@ -252,11 +130,12 @@ public class WordUtils {
 			return retList;
 		}
 
-		Integer offset = Integer.valueOf(utils.getValue(userName, PAGE_OFFSET));
+		Integer offset = 7;// Integer.valueOf(utils.getValue(userName,
+							// PAGE_OFFSET));
 
 		// new words
 		if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
-			int maxInt = userList.size() > 49 ? 49 : userList.size();
+			int maxInt = userList.size();
 
 			for (;;) {
 				Random r = new Random();
@@ -305,45 +184,14 @@ public class WordUtils {
 	 * @param list
 	 */
 	public static void save(String userName, List<UpdateBean> list) {
-		String dbPath = utils.getDBPath(userName);
-		String[] files = new File(dbPath).list();
-
-		// distinct
 		List<UpdateBean> newList = utils.distinct(list);
 
-		for (String file : files) {
-			if (StringUtils.isEmpty(file)) {
-				continue;
-			}
+		for (final UpdateBean bean : newList) {
+			String strSQL = utils.getUpdateSQL(bean);
+			List<Object> params = utils.getUpdateParams(userName, bean);
 
-			String fullPath = Paths.get(dbPath, file).toString();
-			File f = new File(fullPath);
-
-			List<WordBean> allList = utils.getAllList(new File(fullPath));
-
-			for (final UpdateBean bean : newList) {
-				// find the word in the file by same user
-				WordBean[] result = allList.stream().filter(b -> StringUtils.equals(bean.getWord(), b.getWord())
-						&& StringUtils.equals(userName, b.getUserName())).toArray(size -> new WordBean[size]);
-
-				// if can not find user, skip
-				if (result.length == 0) {
-					continue;
-				}
-
-				WordBean target = result[0];
-
-				// update times
-				utils.updateTimes(target, bean);
-				// update next time
-				utils.updateNextTime(userName, target, allList);
-				// update study time
-				if (!bean.isChecked()) {
-					target.setStudyTime(TODAY);
-				}
-			}
-
-			utils.saveFile(f, allList);
+			// execute update
+			DBUtils.update(strSQL, params.toArray());
 		}
 	}
 
@@ -377,14 +225,14 @@ public class WordUtils {
 	}
 
 	public static boolean upload(String userName, MultipartFile file) {
-		String path = utils.getDBPath(userName);
-
-		File dbFile = new File(path + file.getOriginalFilename());
-
-		try {
-			file.transferTo(dbFile);
-		} catch (IllegalStateException | IOException e) {
-		}
+		// String path = utils.getDBPath(userName);
+		//
+		// File dbFile = new File(path + file.getOriginalFilename());
+		//
+		// try {
+		// file.transferTo(dbFile);
+		// } catch (IllegalStateException | IOException e) {
+		// }
 
 		return true;
 	}
@@ -395,34 +243,28 @@ public class WordUtils {
 	 * @param user
 	 * @param file
 	 */
-	public static boolean updateSettings(MultipartFile file) {
-		if (!file.getOriginalFilename().endsWith(".properties")) {
-			return false;
-		}
-
-		String path = utils.getContext().getRealPath(USER_PATH);
-
-		File settingFile = new File(path + file.getOriginalFilename());
-
-		try {
-			file.transferTo(settingFile);
-		} catch (IllegalStateException | IOException e) {
-		}
-
-		int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
-		String user = file.getOriginalFilename().substring(0, endIdx);
-
-		File userDBPath = new File(utils.getDBPath(user));
-
-		if (!userDBPath.exists()) {
-			userDBPath.mkdirs();
-		}
-
-		// reinit user's informations
-		utils.initSettings(user);
-
-		return true;
-	}
+	// public static boolean updateSettings(MultipartFile file) {
+	// if (!file.getOriginalFilename().endsWith(".properties")) {
+	// return false;
+	// }
+	//
+	// String path = utils.getContext().getRealPath(USER_PATH);
+	//
+	// File settingFile = new File(path + file.getOriginalFilename());
+	//
+	// try {
+	// file.transferTo(settingFile);
+	// } catch (IllegalStateException | IOException e) {
+	// }
+	//
+	// int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
+	// String user = file.getOriginalFilename().substring(0, endIdx);
+	//
+	// // reinit user's informations
+	// utils.initSettings(user);
+	//
+	// return true;
+	// }
 
 	/**
 	 * Today's words for play sound
@@ -431,20 +273,19 @@ public class WordUtils {
 	 * @return
 	 */
 	public static List<PlayListBean> getPlayList(String userName) {
-		List<WordBean> allList = utils.getAllList(userName);
+		List<WordBean> allList = utils.getTodayList(userName);
 
 		if (allList.size() == 0) {
 			return new ArrayList<PlayListBean>();
 		}
 
-		return allList.stream().filter(p -> p.getStudyTime() == TODAY && StringUtils.isNotEmpty(p.getSound()))
-				.map(m -> {
-					PlayListBean bean = new PlayListBean();
-					bean.setSource(m.getSound());
-					bean.setWord(m.getWord());
+		return allList.stream().map(m -> {
+			PlayListBean bean = new PlayListBean();
+			bean.setSource(m.getSound());
+			bean.setWord(m.getWord());
 
-					return bean;
-				}).collect(Collectors.toList());
+			return bean;
+		}).collect(Collectors.toList());
 	}
 
 	/**
@@ -455,82 +296,23 @@ public class WordUtils {
 	 * @return
 	 */
 	private List<WordBean> getUserList(String userName, String type) {
-		List<WordBean> allList = utils.getAllList(userName);
+		List<WordBean> allList = utils.getAllList(userName, type);
 
 		if (StringUtils.isEmpty(type)) {
 			return allList;
 		}
 
-		Stream<WordBean> stream = null;
-
-		switch (type) {
-		case "1":
-		case "4":
+		if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
 			// new
-			long count = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= TODAY).count();
+			long count = allList.stream().filter(p -> p.getTimes() == 0).count();
 
 			// new words from review
 			if (count == 0L) {
-				stream = allList.stream().filter(p -> p.getTimes() == 9999);
-				break;
+				allList = allList.stream().filter(p -> p.getTimes() == 9999).collect(Collectors.toList());
 			}
-
-			// new words
-			stream = getNewwords(allList);
-
-			break;
-		case "2":
-			// review
-			stream = allList.stream().filter(p -> p.getTimes() != 0 && p.getNextTime() <= TODAY);
-
-			break;
-		case "3":
-			// favorite
-			stream = allList.stream().filter(p -> p.isFavorite());
-
-			break;
-		default:
-			stream = allList.stream().filter(p -> false);
-			break;
 		}
 
-		return stream.collect(Collectors.toList());
-	}
-
-	private Stream<WordBean> getNewwords(List<WordBean> allList) {
-		List<WordBean> newList = allList.stream().filter(p -> p.getTimes() == 0 && p.getNextTime() <= TODAY)
-				.collect(Collectors.toList());
-
-		long count = newList.stream().map(m -> m.getNextTime()).distinct().count();
-
-		// no news
-		if (count == 0) {
-			return new ArrayList<WordBean>().stream();
-		}
-
-		// one day
-		if (count == 1) {
-			return newList.stream();
-		}
-
-		int lastTime = newList.stream().map(m -> m.getNextTime()).distinct().max((a, b) -> a.compareTo(b)).get()
-				.intValue();
-
-		while (true) {
-			final int nextTime = lastTime;
-			count = newList.stream().filter(p -> p.getNextTime() >= nextTime).count();
-
-			if (count < 49) {
-				lastTime -= 1;
-
-				continue;
-			}
-
-			List<WordBean> retList = newList.stream().filter(p -> p.getNextTime() >= nextTime)
-					.sorted(Comparator.comparingInt(k -> k.getIndex())).collect(Collectors.toList());
-
-			return retList.stream();
-		}
+		return allList;
 	}
 
 	/**
@@ -539,15 +321,13 @@ public class WordUtils {
 	 * @param target
 	 * @param bean
 	 */
-	private void updateTimes(WordBean target, UpdateBean bean) {
-		if (bean.isChecked()) {
-			target.setTimes(0);
-
-			return;
-		}
-
-		target.setTimes(target.getTimes() + 1);
-	}
+	// private int updateTimes(WordBean target, UpdateBean bean) {
+	// if (bean.isChecked()) {
+	// return 0;
+	// }
+	//
+	// return target.getTimes() + 1;
+	// }
 
 	/**
 	 * Update the Next Time Column
@@ -555,70 +335,54 @@ public class WordUtils {
 	 * @param target
 	 * @param stream
 	 */
-	private void updateNextTime(String userName, WordBean target, List<WordBean> list) {
-		int times = target.getTimes();
-
-		// new word don's have next time
-		if (times == 0) {
-			MutableDateTime now = MutableDateTime.now();
-			now.addDays(1);
-
-			target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
-			return;
-		}
-
-		int interval = INTERVAL[times - 1];
-
-		Calendar sysTime = Calendar.getInstance();
-		// add interval days
-		sysTime.add(Calendar.DAY_OF_MONTH, interval);
-
-		DateTime dt = new DateTime(sysTime.getTime());
-		int nextTime = Integer.parseInt(dt.toString("yyyyMMdd"));
-
-		// if the times less than 3, set the next time
-		if (target.getTimes() < 3) {
-			target.setNextTime(nextTime);
-
-			return;
-		}
-
-		while (true) {
-			final int time = nextTime;
-
-			// count the same day's words
-			long count = list.stream().filter(w -> w.getNextTime() == time).count();
-			Integer dayLimit = Integer.valueOf(utils.getValue(userName, DAY_LIMIT));
-
-			// over the limit of days
-			if (count == dayLimit) {
-				nextTime++;
-
-				continue;
-			}
-
-			target.setNextTime(nextTime);
-
-			return;
-		}
-	}
-
-	/**
-	 * save the data to file
-	 * 
-	 * @param stream
-	 */
-	private void saveFile(File file, List<WordBean> allList) {
-		List<String> allLines = new ArrayList<>();
-
-		allList.stream().forEach(b -> allLines.add(b.toString()));
-
-		try {
-			FileUtils.writeLines(file, "UTF-8", allLines);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+	// private void updateNextTime(String userName, WordBean target,
+	// List<WordBean> list) {
+	// int times = target.getTimes();
+	//
+	// // new word don's have next time
+	// if (times == 0) {
+	// MutableDateTime now = MutableDateTime.now();
+	// now.addDays(1);
+	//
+	// target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
+	// return;
+	// }
+	//
+	// int interval = INTERVAL[times - 1];
+	//
+	// Calendar sysTime = Calendar.getInstance();
+	// // add interval days
+	// sysTime.add(Calendar.DAY_OF_MONTH, interval);
+	//
+	// DateTime dt = new DateTime(sysTime.getTime());
+	// int nextTime = Integer.parseInt(dt.toString("yyyyMMdd"));
+	//
+	// // if the times less than 3, set the next time
+	// if (target.getTimes() < 3) {
+	// target.setNextTime(nextTime);
+	//
+	// return;
+	// }
+	//
+	// while (true) {
+	// final int time = nextTime;
+	//
+	// // count the same day's words
+	// long count = list.stream().filter(w -> w.getNextTime() == time).count();
+	// Integer dayLimit = Integer.valueOf(utils.getValue(userName, DAY_LIMIT));
+	//
+	// // over the limit of days
+	// if (count == dayLimit) {
+	// nextTime++;
+	//
+	// continue;
+	// }
+	//
+	// target.setNextTime(nextTime);
+	//
+	// return;
+	// }
+	// }
 
 	/**
 	 * get next word of type 2
@@ -648,41 +412,50 @@ public class WordUtils {
 	}
 
 	/**
-	 * get value form property file
+	 * get update sql
 	 * 
-	 * @param userName
-	 * @param key
+	 * @param bean
 	 * @return
 	 */
-	private String getValue(String userName, String key) {
-		return userMap.get(userName).getProperty(key).toString();
+	private String getUpdateSQL(UpdateBean bean) {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("UPDATE WORDS T1 SET ");
+
+		// 回数リセット
+		if (bean.isChecked()) {
+			sb.append("T1.TIMES = 0 ");
+			sb.append(",T1.NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL 1 DAY), '%Y%m%d') ");
+		} else {
+			sb.append("T1.TIMES = T1.TIMES + 1 ");
+			sb.append(",T1.STUDY_TIME = DATE_FORMAT(NOW(), '%Y%m%d') ");
+			sb.append(
+					",T1.NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (SELECT DAY_DELAY FROM TIMES T2 WHERE T1.USER_ID = T2.USER_ID AND T2.TIMES = T1.TIMES) DAY), '%Y%m%d') ");
+		}
+
+		sb.append(",T1.FAVORITE = ? ");
+		sb.append("WHERE T1.USER_ID = ? AND T1.WORD = ?");
+
+		return sb.toString();
 	}
 
 	/**
-	 * real db file path
-	 * @param userName
-	 * @return
-	 */
-	private String getDBPath(String userName) {
-		return getContext().getRealPath(DB_PATH + userName + "/");
-	}
-	
-	/**
+	 * get update parameters
 	 * 
+	 * @param userName
+	 * @param bean
 	 * @return
 	 */
-	private ServletContext getContext() {
-		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()
-				.getServletContext();
-	}
+	private List<Object> getUpdateParams(String userName, UpdateBean bean) {
+		List<Object> retList = new ArrayList<Object>();
 
-	public static void main(String[] args) {
-		// List<WordBean> list = utils.getAllList();
-		//
-		// list.forEach(bean -> {
-		// bean.setUserName("Alpha");
-		// });
-		//
-		// utils.saveFile(list.stream());
+		// FAVORITE
+		retList.add(BooleanUtils.toString(bean.isFavorite(), "1", "0"));
+		// USER
+		retList.add(userName);
+		// WORD
+		retList.add(bean.getWord());
+
+		return retList;
 	}
 }
