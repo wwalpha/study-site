@@ -27,7 +27,8 @@ public class DBUtils {
 	static {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-		} catch (ClassNotFoundException e) {
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
 	}
 
