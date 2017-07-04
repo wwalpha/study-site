@@ -27,7 +27,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping("/users")
 	public ResponseEntity<List<String>> users() {
-		return ResponseEntity.ok(WordUtils.getUsers());
+		return ResponseEntity.ok(WordUtils3.getUsers());
 	}
 
 	/**
@@ -39,7 +39,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping("/{user}/{type}/nextpage")
 	public ResponseEntity<List<WordBean>> nextPage(@PathVariable String user, @PathVariable String type) {
-		return ResponseEntity.ok(WordUtils.getNextList(user, type));
+		return ResponseEntity.ok(WordUtils3.getNextList(user, type));
 	}
 
 	/**
@@ -53,9 +53,9 @@ public class WordCtrl {
 	@RequestMapping(value = "/{user}/{type}/save", method = RequestMethod.POST)
 	public ResponseEntity<List<WordBean>> save(@PathVariable String user, @PathVariable String type,
 			@RequestBody List<UpdateBean> reqlist) {
-		WordUtils.save(user, reqlist);
+		WordUtils3.save(user, reqlist);
 
-		return ResponseEntity.ok(WordUtils.getNextList(user, type));
+		return ResponseEntity.ok(WordUtils3.getNextList(user, type));
 	}
 
 	/**
@@ -67,7 +67,7 @@ public class WordCtrl {
 	@RequestMapping(value = "/{user}/download", method = RequestMethod.GET, produces = "application/json")
 	public ResponseEntity<List<String>> download(@PathVariable String user) {
 		List<String> list = new ArrayList<String>();
-		list.add(WordUtils.download(user));
+		list.add(WordUtils3.download(user));
 
 		return ResponseEntity.ok(list);
 	}
@@ -81,7 +81,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping(value = "/{user}/upload", method = RequestMethod.POST)
 	public ResponseEntity<String> upload(@PathVariable String user, MultipartFile file) {
-		boolean result = WordUtils.upload(user, file);
+		boolean result = WordUtils3.upload(user, file);
 
 		return result ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
 	}
@@ -94,7 +94,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping("/{user}/playlist")
 	public ResponseEntity<List<PlayListBean>> playlist(@PathVariable String user) {
-		return ResponseEntity.ok(WordUtils.getPlayList(user));
+		return ResponseEntity.ok(WordUtils3.getPlayList(user));
 	}
 
 	/**
@@ -105,7 +105,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping(value = "/settings", method = RequestMethod.POST)
 	public ResponseEntity<String> settings(MultipartFile file) {
-		boolean result = WordUtils.updateSettings(file);
+		boolean result = false;//WordUtils3.updateSettings(file);
 
 		return result ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
 	}

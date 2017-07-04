@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -50,21 +51,31 @@ class DBQuery<T> {
 			this.stmt = conn.prepareStatement(strSQL);
 			this.rs = stmt.executeQuery();
 		} catch (SQLException e) {
+			e.printStackTrace();
 			this.close();
 			return retList;
 		}
 
 		initFieldMap();
 
+		
+		
 		try {
 			ResultSetMetaData metaData = rs.getMetaData();
 
-			while (rs.next()) {
+			System.out.println(rs.getString(0));
+			if (clazz.equals(String.class)) {
+				retList.add((T)rs.getString(0));
+			} else if (clazz.equals(Integer.class)) {	
+				retList.add((T)Integer.valueOf(rs.getInt(1)));
+			} else {
+				while (rs.next()) {
+					T bean = setValue(rs, metaData);
 
-				T bean = setValue(rs, metaData);
-
-				retList.add(bean);
+					retList.add(bean);
+				}	
 			}
+			
 		} catch (Exception e) {
 		} finally {
 			this.close();
@@ -103,28 +114,34 @@ class DBQuery<T> {
 
 		return 0;
 	}
-	
-	public int insert(String strSQL, Object... params) {
+
+	/**
+	 * execute batch sql
+	 * 
+	 * @param sqlList
+	 * @return
+	 */
+	public int[] execBatch(List<String> sqlList) {
 		try {
 			this.conn = getConnection();
-			this.stmt = conn.prepareStatement(strSQL);
 		} catch (SQLException e) {
 			this.close();
-			return 0;
+			return new int[] { 0 };
 		}
-		
+
 		try {
-			this.stmt.setString(1, (String) params[0]);
-			this.stmt.setString(2, (String) params[1]);
-			this.stmt.setString(3, (String) params[2]);
-			this.stmt.setString(4, (String) params[3]);
-			this.stmt.setString(5, (String) params[4]);
-			this.stmt.setString(6, (String) params[5]);
-	
-			this.stmt.addBatch();
+			Statement stmt = this.conn.createStatement();
+
+			for (String strSQL : sqlList) {
+				stmt.addBatch(strSQL);
+			}
+
+			return stmt.executeBatch();
 		} catch (SQLException e) {
-			this.close();
+			e.printStackTrace();
 		}
+
+		return new int[] { 0 };
 	}
 
 	private T setValue(ResultSet rs, ResultSetMetaData metaData) throws Exception {
@@ -202,5 +219,15 @@ class DBQuery<T> {
 		rs = null;
 		stmt = null;
 		conn = null;
+	}
+	
+	public void testConnection() {
+		try {
+			this.getConnection();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		System.out.println("success");
 	}
 }
