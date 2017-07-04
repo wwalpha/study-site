@@ -38,10 +38,7 @@ public class DBUtils {
 //	private static final String USER_NAME = "root";
 //	private static final String PASSWORD = "session10";
 //	private static final String URL = "jdbc:mysql://localhost:8808/worddb?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
-	private static final String URL = "jdbc:mysql://alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com:3306/StudySite?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
-	private static final String USER_NAME = "wwalpha";
-	private static final String PASSWORD = "session10";
-	
+
 	/**
 	 * SELECT EXECUTE
 	 * 
@@ -50,14 +47,14 @@ public class DBUtils {
 	 * @return
 	 */
 	public static <T> List<T> select(Class<T> clazz, String strSQL, Object... params) {
-		DBQuery<T> query = new DBQuery<T>(clazz, URL, USER_NAME, PASSWORD);
+		DBQuery<T> query = new DBQuery<T>(clazz);
 
 		return query.select(strSQL, params);
 	}
 
 	@SuppressWarnings("rawtypes")
 	public static int update(String strSQL, Object... params) {
-		DBQuery query = new DBQuery(URL, USER_NAME, PASSWORD);
+		DBQuery query = new DBQuery();
 
 		try {
 			return query.update(strSQL, params);
@@ -71,7 +68,7 @@ public class DBUtils {
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
 	public static int[] execBatch(List<String> sqlList) {
-		DBQuery query = new DBQuery(URL, USER_NAME, PASSWORD);
+		DBQuery query = new DBQuery();
 
 		try {
 			return query.execBatch(sqlList);

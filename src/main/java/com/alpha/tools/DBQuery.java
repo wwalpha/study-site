@@ -17,9 +17,9 @@ import org.apache.commons.lang3.BooleanUtils;
 
 class DBQuery<T> {
 
-	private String url;
-	private String userName;
-	private String password;
+//	private static final String URL = "jdbc:mysql://alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com:3306/StudySite?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
+//	private static final String USER_NAME = "wwalpha";
+//	private static final String PASSWORD = "session10";
 
 	private Connection conn = null;
 	private PreparedStatement stmt = null;
@@ -27,17 +27,13 @@ class DBQuery<T> {
 	private Class<T> clazz = null;
 	private Map<String, Field> fieldMap = null;
 
-	DBQuery(Class<T> clazz, String url, String userName, String password) {
-		this.url = url;
-		this.userName = userName;
-		this.password = password;
+	DBQuery(Class<T> clazz) {
 		this.clazz = clazz;
 	}
 
-	DBQuery(String url, String userName, String password) {
-		this(null, url, userName, password);
+	DBQuery() {
 	}
-
+	
 	/**
 	 * select execute
 	 * 
@@ -58,7 +54,7 @@ class DBQuery<T> {
 
 			this.rs = stmt.executeQuery();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.toString());
 			this.close();
 			return retList;
 		}
@@ -81,7 +77,7 @@ class DBQuery<T> {
 			}
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			System.out.println(e.toString());
 		} finally {
 			this.close();
 		}
@@ -101,6 +97,7 @@ class DBQuery<T> {
 			this.conn = getConnection();
 			this.stmt = conn.prepareStatement(strSQL);
 		} catch (SQLException e) {
+			System.out.println(e.toString());
 			this.close();
 			return 0;
 		}
@@ -110,7 +107,7 @@ class DBQuery<T> {
 
 			return this.stmt.executeUpdate();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			System.out.println(e.toString());
 		}
 
 		return 0;
@@ -203,7 +200,37 @@ class DBQuery<T> {
 	 * @throws SQLException
 	 */
 	private Connection getConnection() throws SQLException {
-		return DriverManager.getConnection(this.url, this.userName, this.password);
+		System.out.println(System.getProperty("RDS_HOSTNAME"));
+		if (System.getProperty("RDS_HOSTNAME") != null) {
+			try {
+				Class.forName("com.mysql.jdbc.Driver");
+				String dbName = System.getProperty("RDS_DB_NAME");
+				String userName = System.getProperty("RDS_USERNAME");
+				String password = System.getProperty("RDS_PASSWORD");
+				String hostname = System.getProperty("RDS_HOSTNAME");
+				String port = System.getProperty("RDS_PORT");
+				
+//				String dbName = "StudySite";
+//				String userName = "wwalpha";
+//				String password = "session10";
+//				String hostname = "alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com";
+//				String port = "3306";
+				
+				String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName
+						+ "&password=" + password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
+				System.out.println(jdbcUrl);
+
+				Connection con = DriverManager.getConnection(jdbcUrl);
+				System.out.println("Remote connection successful.");
+
+				return con;
+			} catch (ClassNotFoundException e) {
+				System.out.println("ClassNotFoundException" + e.toString());
+			} catch (SQLException e) {
+				System.out.println("SQLException" + e.toString());
+			}
+		}
+		return null;
 	}
 
 	/**
