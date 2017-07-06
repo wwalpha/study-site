@@ -14,6 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
+import com.alpha.bean.UserBean;
 import com.alpha.bean.WordBean;
 
 @RestController
@@ -28,6 +29,16 @@ public class WordCtrl {
 	@RequestMapping("/users")
 	public ResponseEntity<List<String>> users() {
 		return ResponseEntity.ok(WordUtils.getUsers());
+	}
+
+	/**
+	 * user list
+	 * 
+	 * @return
+	 */
+	@RequestMapping("/{user}/userprops")
+	public ResponseEntity<UserBean> userprops(@PathVariable String user) {
+		return ResponseEntity.ok(WordUtils.getUserProps(user));
 	}
 
 	/**

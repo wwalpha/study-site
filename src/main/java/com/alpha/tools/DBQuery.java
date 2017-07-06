@@ -12,14 +12,13 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 
 class DBQuery<T> {
-
-//	private static final String URL = "jdbc:mysql://alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com:3306/StudySite?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
-//	private static final String USER_NAME = "wwalpha";
-//	private static final String PASSWORD = "session10";
 
 	private Connection conn = null;
 	private PreparedStatement stmt = null;
@@ -33,7 +32,7 @@ class DBQuery<T> {
 
 	DBQuery() {
 	}
-	
+
 	/**
 	 * select execute
 	 * 
@@ -146,8 +145,16 @@ class DBQuery<T> {
 		int columnCount = metaData.getColumnCount();
 		T bean = clazz.newInstance();
 
+		List<String> columnNames = IntStream.range(1, columnCount).mapToObj(i -> {
+			try {
+				return metaData.getColumnLabel(i).toUpperCase().replaceAll("_", StringUtils.EMPTY);
+			} catch (SQLException e) {
+			}
+			return null;
+		}).collect(Collectors.toList());
+
 		for (int i = 1; i <= columnCount; i++) {
-			String columnName = metaData.getColumnLabel(i).toUpperCase();
+			String columnName = columnNames.get(i - 1);
 
 			if (!this.fieldMap.containsKey(columnName)) {
 				continue;
@@ -200,36 +207,34 @@ class DBQuery<T> {
 	 * @throws SQLException
 	 */
 	private Connection getConnection() throws SQLException {
-		System.out.println(System.getProperty("RDS_HOSTNAME"));
-		if (System.getProperty("RDS_HOSTNAME") != null) {
-			try {
-				Class.forName("com.mysql.jdbc.Driver");
-				String dbName = System.getProperty("RDS_DB_NAME");
-				String userName = System.getProperty("RDS_USERNAME");
-				String password = System.getProperty("RDS_PASSWORD");
-				String hostname = System.getProperty("RDS_HOSTNAME");
-				String port = System.getProperty("RDS_PORT");
-				
-//				String dbName = "StudySite";
-//				String userName = "wwalpha";
-//				String password = "session10";
-//				String hostname = "alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com";
-//				String port = "3306";
-				
-				String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName
-						+ "&password=" + password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
-				System.out.println(jdbcUrl);
+		try {
+			Class.forName("com.mysql.jdbc.Driver");
+			// String dbName = System.getProperty("RDS_DB_NAME");
+			// String userName = System.getProperty("RDS_USERNAME");
+			// String password = System.getProperty("RDS_PASSWORD");
+			// String hostname = System.getProperty("RDS_HOSTNAME");
+			// String port = System.getProperty("RDS_PORT");
 
-				Connection con = DriverManager.getConnection(jdbcUrl);
-				System.out.println("Remote connection successful.");
+			String dbName = "StudySite";
+			String userName = "wwalpha";
+			String password = "session10";
+			String hostname = "alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com";
+			String port = "3306";
 
-				return con;
-			} catch (ClassNotFoundException e) {
-				System.out.println("ClassNotFoundException" + e.toString());
-			} catch (SQLException e) {
-				System.out.println("SQLException" + e.toString());
-			}
+			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
+					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
+			System.out.println(jdbcUrl);
+
+			Connection con = DriverManager.getConnection(jdbcUrl);
+			System.out.println("Remote connection successful.");
+
+			return con;
+		} catch (ClassNotFoundException e) {
+			System.out.println("ClassNotFoundException" + e.toString());
+		} catch (SQLException e) {
+			System.out.println("SQLException" + e.toString());
 		}
+
 		return null;
 	}
 

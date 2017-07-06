@@ -14,6 +14,8 @@ public class DBUtils {
 
 	public static final String SELECT_ALL = "SELECT USER_ID AS USERNAME, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? ";
 	public static final String SELECT_USERS = "SELECT USER_ID FROM USERS";
+	public static final String SELECT_USER_PROPS = "SELECT PAGE_OFFSET, DAY_LIMIT FROM USERS WHERE USER_ID = ? ";
+	public static final String SELECT_USER_CTG = "SELECT DISTICT CATEGORY FROM WORDS WHERE USER_ID = ? ";
 
 	public static final String SELECT_NEWWORD = "SELECT DISTINCT USER_ID AS USERNAME, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= DATE_FORMAT(NOW(),'%Y%m%d') AND (TIMES = 0 OR TIMES = 9999) ORDER BY TIMES, NEXT_TIME DESC LIMIT 49";
 	public static final String SELECT_REVIEW = "SELECT DISTINCT USER_ID AS USERNAME, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= DATE_FORMAT(NOW(),'%Y%m%d') AND TIMES <> 0 ";
@@ -24,20 +26,8 @@ public class DBUtils {
 	public static final String SELECT_SETTINGS = "";
 	public static final String UPDATE_SETTINGS = "";
 
-	static {
-		try {
-			Class.forName("com.mysql.jdbc.Driver");
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
-
 	private DBUtils() {
 	}
-
-//	private static final String USER_NAME = "root";
-//	private static final String PASSWORD = "session10";
-//	private static final String URL = "jdbc:mysql://localhost:8808/worddb?useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
 
 	/**
 	 * SELECT EXECUTE
@@ -85,89 +75,99 @@ public class DBUtils {
 		//
 		// query.testConnection();
 
-		File f = new File("D:/Java/wordDB.txt");
+		File dir = new File("D:/Java/words");
 
-		List<String> allLines = FileUtils.readLines(f, "UTF-8");
-		List<WordBean> retList = new ArrayList<>();
+		for (File file : dir.listFiles()) {
+			List<String> allLines = FileUtils.readLines(file, "UTF-8");
+			List<WordBean> retList = new ArrayList<>();
+			String fileName = file.getName().replaceAll(".txt", "");
+			System.out.println(fileName);
+			int index = 1;
 
-		int index = 1;
-
-		for (String line : allLines) {
-			if (StringUtils.isEmpty(line)) {
-				continue;
-			}
-
-			String[] datas = line.split("\\|");
-
-			if (datas.length < 6) {
-				continue;
-			}
-
-			WordBean bean = new WordBean();
-			bean.setUserName(datas[0]);
-			bean.setWord(datas[1]);
-			bean.setPronounce(datas[2]);
-			bean.setVocabulary(datas[3]);
-
-			try {
-				bean.setNextTime(Integer.parseInt(datas[4]));
-				bean.setTimes(Integer.parseInt(datas[5]));
-
-				if (datas.length >= 9) {
-					bean.setStudyTime(Integer.parseInt(datas[8]));
+			for (String line : allLines) {
+				if (StringUtils.isEmpty(line)) {
+					continue;
 				}
-			} catch (NumberFormatException e) {
-				// not use error date
-				continue;
+
+				String[] datas = line.split("\\|");
+
+				if (datas.length < 6) {
+					continue;
+				}
+
+				WordBean bean = new WordBean();
+				bean.setUserName(datas[0]);
+				bean.setWord(datas[1]);
+				bean.setPronounce(datas[2]);
+				bean.setVocabulary(datas[3]);
+
+				try {
+					bean.setNextTime(Integer.parseInt(datas[4]));
+					bean.setTimes(Integer.parseInt(datas[5]));
+
+					if (datas.length >= 9) {
+						bean.setStudyTime(Integer.parseInt(datas[8]));
+					}
+				} catch (NumberFormatException e) {
+					// not use error date
+					continue;
+				}
+
+				bean.setFavorite(Boolean.parseBoolean(datas[6]));
+				bean.setIndex(index++);
+
+				if (datas.length >= 8) {
+					bean.setSound(datas[7]);
+				}
+
+				if (StringUtils.indexOf(bean.getWord(), "'") != -1) {
+					bean.setWord(bean.getWord().replaceAll("'", "\\\\'"));
+				}
+
+				retList.add(bean);
 			}
 
-			bean.setFavorite(Boolean.parseBoolean(datas[6]));
-			bean.setIndex(index++);
+			List<String> sqlList = new ArrayList<String>();
 
-			if (datas.length >= 8) {
-				bean.setSound(datas[7]);
+			for (WordBean bean : retList) {
+				StringBuffer sb = new StringBuffer();
+
+				sb.append("INSERT WORDS (");
+				sb.append("  USER_ID");
+				sb.append("  ,WORD_NO");
+				sb.append("  ,CATEGORY");
+				sb.append("  ,WORD");
+				sb.append("  ,PRONOUNCE");
+				sb.append("  ,VOCABULARY");
+				sb.append("  ,NEXT_TIME");
+				sb.append("  ,STUDY_TIME");
+				sb.append("  ,TIMES");
+				sb.append("  ,FAVORITE");
+				sb.append("  ,SOUND");
+				sb.append(") VALUES (");
+				sb.append("  '").append(bean.getUserName()).append("' ");
+				sb.append("  ,NEXTVAL('WORDSEQ') ");
+				sb.append("  ,'").append(fileName).append("' ");
+				sb.append("  ,'").append(bean.getWord()).append("' ");
+				sb.append("  ,'").append(bean.getPronounce()).append("' ");
+				sb.append("  ,'").append(bean.getVocabulary()).append("' ");
+				sb.append("  ,'").append(bean.getNextTime()).append("' ");
+				sb.append("  ,'").append(bean.getStudyTime()).append("' ");
+				sb.append("  ,").append(bean.getTimes());
+				sb.append("  ,'").append(BooleanUtils.toString(bean.isFavorite(), "1", "0")).append("' ");
+
+				if (StringUtils.isNotEmpty(bean.getSound())) {
+					sb.append("  ,'").append(bean.getSound()).append("' ");
+				} else {
+					sb.append("  ,null");
+				}
+				sb.append(")");
+
+				sqlList.add(sb.toString());
 			}
 
-			retList.add(bean);
+			DBUtils.execBatch(sqlList);
 		}
 
-		List<String> sqlList = new ArrayList<String>();
-
-		for (WordBean bean : retList) {
-			StringBuffer sb = new StringBuffer();
-
-			sb.append("INSERT WORDS (");
-			sb.append("  USER_ID");
-			sb.append("  ,WORD_NO");
-			sb.append("  ,WORD");
-			sb.append("  ,PRONOUNCE");
-			sb.append("  ,VOCABULARY");
-			sb.append("  ,NEXT_TIME");
-			sb.append("  ,STUDY_TIME");
-			sb.append("  ,TIMES");
-			sb.append("  ,FAVORITE");
-			sb.append("  ,SOUND");
-			sb.append(") VALUES (");
-			sb.append("  '").append(bean.getUserName()).append("' ");
-			sb.append("  ,NEXTVAL('WORDSEQ') ");
-			sb.append("  ,'").append(bean.getWord()).append("' ");
-			sb.append("  ,'").append(bean.getPronounce()).append("' ");
-			sb.append("  ,'").append(bean.getVocabulary()).append("' ");
-			sb.append("  ,'").append(bean.getNextTime()).append("' ");
-			sb.append("  ,'").append(bean.getStudyTime()).append("' ");
-			sb.append("  ,").append(bean.getTimes());
-			sb.append("  ,'").append(BooleanUtils.toString(bean.isFavorite(), "1", "0")).append("' ");
-
-			if (StringUtils.isNotEmpty(bean.getSound())) {
-				sb.append("  ,'").append(bean.getSound()).append("' ");
-			} else {
-				sb.append("  ,null");
-			}
-			sb.append(")");
-
-			sqlList.add(sb.toString());
-		}
-
-		DBUtils.execBatch(sqlList);
 	}
 }

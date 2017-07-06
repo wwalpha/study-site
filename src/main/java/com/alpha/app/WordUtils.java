@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
+import com.alpha.bean.UserBean;
 import com.alpha.bean.WordBean;
 import com.alpha.tools.DBUtils;
 
@@ -113,6 +114,22 @@ public class WordUtils {
 	 */
 	public static List<String> getUsers() {
 		return DBUtils.select(String.class, DBUtils.SELECT_USERS);
+	}
+
+	/**
+	 * get all users
+	 * 
+	 * @return
+	 */
+	public static UserBean getUserProps(String userName) {
+		List<UserBean> retList = DBUtils.select(UserBean.class, DBUtils.SELECT_USER_PROPS, userName);
+
+		List<String> ctgList = DBUtils.select(String.class, DBUtils.SELECT_USER_CTG, userName);
+
+		UserBean userBean = retList.get(0);
+		userBean.setCtgNames(ctgList);
+
+		return userBean;
 	}
 
 	/**
