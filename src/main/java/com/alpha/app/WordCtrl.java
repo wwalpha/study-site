@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,8 +50,9 @@ public class WordCtrl {
 	 * @return
 	 */
 	@RequestMapping("/{user}/{type}/nextpage")
-	public ResponseEntity<List<WordBean>> nextPage(@PathVariable String user, @PathVariable String type) {
-		return ResponseEntity.ok(WordUtils.getNextList(user, type));
+	public ResponseEntity<List<WordBean>> nextPage(@PathVariable String user, @PathVariable String type,
+			@RequestParam(value = "categories") String categories) {
+		return ResponseEntity.ok(WordUtils.getNextList(user, type, categories));
 	}
 
 	/**
@@ -63,10 +65,10 @@ public class WordCtrl {
 	 */
 	@RequestMapping(value = "/{user}/{type}/save", method = RequestMethod.POST)
 	public ResponseEntity<List<WordBean>> save(@PathVariable String user, @PathVariable String type,
-			@RequestBody List<UpdateBean> reqlist) {
+			@RequestBody List<UpdateBean> reqlist, @RequestParam(value = "categories") String categories) {
 		WordUtils.save(user, reqlist);
 
-		return ResponseEntity.ok(WordUtils.getNextList(user, type));
+		return ResponseEntity.ok(WordUtils.getNextList(user, type, categories));
 	}
 
 	/**

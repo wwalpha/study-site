@@ -65,7 +65,12 @@ class DBQuery<T> {
 
 			while (rs.next()) {
 				if (clazz.equals(String.class)) {
-					retList.add((T) rs.getString(1));
+					if (rs.getString(1) == null) {
+						retList.add(null);
+					} else {
+						retList.add((T) rs.getString(1));
+					}
+
 				} else if (clazz.equals(Integer.class)) {
 					retList.add((T) Integer.valueOf(rs.getInt(1)));
 				} else {
@@ -145,7 +150,7 @@ class DBQuery<T> {
 		int columnCount = metaData.getColumnCount();
 		T bean = clazz.newInstance();
 
-		List<String> columnNames = IntStream.range(1, columnCount).mapToObj(i -> {
+		List<String> columnNames = IntStream.rangeClosed(1, columnCount).mapToObj(i -> {
 			try {
 				return metaData.getColumnLabel(i).toUpperCase().replaceAll("_", StringUtils.EMPTY);
 			} catch (SQLException e) {

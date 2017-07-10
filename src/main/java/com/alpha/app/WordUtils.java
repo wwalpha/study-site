@@ -37,7 +37,7 @@ public class WordUtils {
 	}
 
 	private List<WordBean> getAllList(String userName) {
-		return getAllList(userName, null);
+		return getAllList(userName, null, null);
 	}
 
 	/**
@@ -46,8 +46,8 @@ public class WordUtils {
 	 * @param userName
 	 * @return
 	 */
-	private List<WordBean> getAllList(String userName, String type) {
-		List<WordBean> retList = getWordList(userName, type);
+	private List<WordBean> getAllList(String userName, String type, String categories) {
+		List<WordBean> retList = getWordList(userName, type, categories);
 
 		if (StringUtils.isNotEmpty(type)) {
 			int pos = 1;
@@ -77,18 +77,18 @@ public class WordUtils {
 	 * @param type
 	 * @return
 	 */
-	private List<WordBean> getWordList(String userName, String type) {
+	private List<WordBean> getWordList(String userName, String type, String categories) {
 
 		if (StringUtils.isEmpty(type)) {
 			return DBUtils.select(WordBean.class, DBUtils.SELECT_ALL);
 		}
 
 		if (StringUtils.equals("1", type) || StringUtils.equals("4", type)) {
-			return DBUtils.select(WordBean.class, DBUtils.SELECT_NEWWORD, userName);
+			return DBUtils.select(WordBean.class, getSelectWordSQL(categories), userName);
 		}
 
 		if (StringUtils.equals("2", type)) {
-			return DBUtils.select(WordBean.class, DBUtils.SELECT_REVIEW, userName);
+			return DBUtils.select(WordBean.class, getSelectReviewSQL(categories), userName);
 		}
 
 		if (StringUtils.equals("3", type)) {
@@ -96,6 +96,46 @@ public class WordUtils {
 		}
 
 		return new ArrayList<WordBean>();
+	}
+
+	private String getSelectWordSQL(String categories) {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append(DBUtils.SELECT_NEWWORD);
+		sb.append(getInSQL(categories));
+		sb.append("ORDER BY TIMES, NEXT_TIME DESC LIMIT 49");
+
+		return sb.toString();
+	}
+
+	private String getSelectReviewSQL(String categories) {
+		StringBuffer sb = new StringBuffer();
+
+		sb.append(DBUtils.SELECT_REVIEW);
+		sb.append(getInSQL(categories));
+
+		return sb.toString();
+	}
+
+	private String getInSQL(String categories) {
+		// データなし
+		String[] ctgs = StringUtils.split(categories, ",");
+
+		if (ctgs == null || ctgs.length == 0) {
+			return StringUtils.EMPTY;
+		}
+
+		StringBuffer sb = new StringBuffer();
+
+		sb.append("AND CATEGORY IN (");
+		for (String category : ctgs) {
+			sb.append("'").append(category).append("', ");
+		}
+		sb.deleteCharAt(sb.length() - 2);
+
+		sb.append(") ");
+
+		return sb.toString();
 	}
 
 	/**
@@ -124,10 +164,16 @@ public class WordUtils {
 	public static UserBean getUserProps(String userName) {
 		List<UserBean> retList = DBUtils.select(UserBean.class, DBUtils.SELECT_USER_PROPS, userName);
 
+		UserBean userBean = retList.get(0);
+
 		List<String> ctgList = DBUtils.select(String.class, DBUtils.SELECT_USER_CTG, userName);
 
-		UserBean userBean = retList.get(0);
-		userBean.setCtgNames(ctgList);
+		if (ctgList.size() != 0) {
+			// category names
+			userBean.setCtgNames(ctgList);
+		} else {
+			userBean.setCtgNames(new ArrayList<>());
+		}
 
 		return userBean;
 	}
@@ -136,11 +182,11 @@ public class WordUtils {
 	 * 
 	 * @return
 	 */
-	public static List<WordBean> getNextList(String userName, String type) {
+	public static List<WordBean> getNextList(String userName, String type, String categories) {
 		List<WordBean> retList = new ArrayList<>();
 		Set<String> set = new HashSet<>();
 
-		List<WordBean> userList = utils.getUserList(userName, type);
+		List<WordBean> userList = utils.getUserList(userName, type, categories);
 
 		// not found the user's data
 		if (userList.size() == 0) {
@@ -255,35 +301,6 @@ public class WordUtils {
 	}
 
 	/**
-	 * update user's setting file
-	 * 
-	 * @param user
-	 * @param file
-	 */
-	// public static boolean updateSettings(MultipartFile file) {
-	// if (!file.getOriginalFilename().endsWith(".properties")) {
-	// return false;
-	// }
-	//
-	// String path = utils.getContext().getRealPath(USER_PATH);
-	//
-	// File settingFile = new File(path + file.getOriginalFilename());
-	//
-	// try {
-	// file.transferTo(settingFile);
-	// } catch (IllegalStateException | IOException e) {
-	// }
-	//
-	// int endIdx = file.getOriginalFilename().lastIndexOf(".properties");
-	// String user = file.getOriginalFilename().substring(0, endIdx);
-	//
-	// // reinit user's informations
-	// utils.initSettings(user);
-	//
-	// return true;
-	// }
-
-	/**
 	 * Today's words for play sound
 	 * 
 	 * @param userName
@@ -312,8 +329,8 @@ public class WordUtils {
 	 * @param type
 	 * @return
 	 */
-	private List<WordBean> getUserList(String userName, String type) {
-		List<WordBean> allList = utils.getAllList(userName, type);
+	private List<WordBean> getUserList(String userName, String type, String categories) {
+		List<WordBean> allList = utils.getAllList(userName, type, categories);
 
 		if (StringUtils.isEmpty(type)) {
 			return allList;
@@ -331,75 +348,6 @@ public class WordUtils {
 
 		return allList;
 	}
-
-	/**
-	 * Update the times column
-	 * 
-	 * @param target
-	 * @param bean
-	 */
-	// private int updateTimes(WordBean target, UpdateBean bean) {
-	// if (bean.isChecked()) {
-	// return 0;
-	// }
-	//
-	// return target.getTimes() + 1;
-	// }
-
-	/**
-	 * Update the Next Time Column
-	 * 
-	 * @param target
-	 * @param stream
-	 */
-	// private void updateNextTime(String userName, WordBean target,
-	// List<WordBean> list) {
-	// int times = target.getTimes();
-	//
-	// // new word don's have next time
-	// if (times == 0) {
-	// MutableDateTime now = MutableDateTime.now();
-	// now.addDays(1);
-	//
-	// target.setNextTime(Integer.parseInt(now.toString("yyyyMMdd")));
-	// return;
-	// }
-	//
-	// int interval = INTERVAL[times - 1];
-	//
-	// Calendar sysTime = Calendar.getInstance();
-	// // add interval days
-	// sysTime.add(Calendar.DAY_OF_MONTH, interval);
-	//
-	// DateTime dt = new DateTime(sysTime.getTime());
-	// int nextTime = Integer.parseInt(dt.toString("yyyyMMdd"));
-	//
-	// // if the times less than 3, set the next time
-	// if (target.getTimes() < 3) {
-	// target.setNextTime(nextTime);
-	//
-	// return;
-	// }
-	//
-	// while (true) {
-	// final int time = nextTime;
-	//
-	// // count the same day's words
-	// long count = list.stream().filter(w -> w.getNextTime() == time).count();
-	// Integer dayLimit = Integer.valueOf(utils.getValue(userName, DAY_LIMIT));
-	//
-	// // over the limit of days
-	// if (count == dayLimit) {
-	// nextTime++;
-	//
-	// continue;
-	// }
-	//
-	// target.setNextTime(nextTime);
-	//
-	// return;
-	// }
-	// }
 
 	/**
 	 * get next word of type 2
