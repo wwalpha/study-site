@@ -19,7 +19,7 @@ import com.alpha.bean.UserBean;
 import com.alpha.bean.WordBean;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin
 public class WordCtrl {
 
 	/**
