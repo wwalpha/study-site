@@ -15,6 +15,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alpha.bean.CalculateBean;
 import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.UserBean;
@@ -422,5 +423,46 @@ public class WordUtils {
 		retList.add(bean.getWord());
 
 		return retList;
+	}
+
+	public static CalculateBean getAddSingle() {
+		List<CalculateBean> retList = DBUtils.select(CalculateBean.class, DBUtils.SELECT_ADD_SINGLE_ALL);
+
+		int maxTimes = retList.stream().max(Comparator.comparingInt(k -> k.getTimes())).get().getTimes();
+
+		List<CalculateBean> newList = retList.stream().filter(p -> p.getTimes() == (maxTimes - 1))
+				.collect(Collectors.toList());
+
+		if (newList.size() == 0) {
+			newList = retList;
+		}
+
+		return getRandom(newList);
+	}
+
+	public static void updateAddSingle(int left, int right, int result) {
+		List<Object> params = new ArrayList<Object>();
+		params.add(left);
+		params.add(right);
+
+		DBUtils.update(DBUtils.UPDATE_ADD_SINGLE, params.toArray());
+
+		params = new ArrayList<Object>();
+		params.add(result);
+		params.add(left);
+		params.add(right);
+
+		DBUtils.update(DBUtils.INSERT_ADD_SINGLE_HISTORY, params.toArray());
+	}
+
+	private static <T> T getRandom(List<T> list) {
+		if (list.size() == 1) {
+			return list.get(0);
+		}
+
+		Random r = new Random();
+		int nextInt = r.nextInt(list.size() - 1);
+
+		return list.get(nextInt);
 	}
 }

@@ -26,6 +26,10 @@ public class DBUtils {
 	public static final String SELECT_SETTINGS = "";
 	public static final String UPDATE_SETTINGS = "";
 
+	public static final String SELECT_ADD_SINGLE_ALL = "SELECT LEFT_NUM AS LEFTNUM, RIGHT_NUM AS RIGHTNUM, TIMES FROM CALCULATE WHERE OPERATOR = '+' AND LEFT_NUM < 10 AND RIGHT_NUM < 10 ";
+	public static final String UPDATE_ADD_SINGLE = "UPDATE CALCULATE SET TIMES = TIMES + 1 WHERE LEFT_NUM = ? AND RIGHT_NUM = ? AND OPERATOR = '+' ";
+	public static final String INSERT_ADD_SINGLE_HISTORY = "INSERT INTO CALC_HISTORY(HISTORYNO, LEFT_NUM, RIGHT_NUM, OPERATOR, RESULT_NUM, REGIST_TIME, TIMES, SUCCESS) SELECT NEXTVAL('CALCSEQ'), LEFT_NUM, RIGHT_NUM, OPERATOR, RESULT_NUM, DATE_FORMAT(NOW(),'%Y%m%d'), TIMES, CASE WHEN ? = RESULT_NUM THEN '1' ELSE '0' END FROM CALCULATE WHERE LEFT_NUM = ? AND RIGHT_NUM = ? AND OPERATOR = '+' ";
+
 	private DBUtils() {
 	}
 
@@ -166,7 +170,7 @@ public class DBUtils {
 				sqlList.add(sb.toString());
 			}
 
-			DBUtils.execBatch(sqlList);
+//			DBUtils.execBatch(sqlList);
 		}
 
 	}

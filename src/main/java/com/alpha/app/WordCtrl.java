@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.alpha.bean.CalculateBean;
 import com.alpha.bean.PlayListBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.UserBean;
@@ -21,6 +22,19 @@ import com.alpha.bean.WordBean;
 @RestController
 @CrossOrigin
 public class WordCtrl {
+
+	@RequestMapping(value = "/addsingle", method = RequestMethod.GET)
+	public ResponseEntity<CalculateBean> getAddSingle() {
+		return ResponseEntity.ok(WordUtils.getAddSingle());
+	}
+
+	@RequestMapping(value = "/addsingle", method = RequestMethod.POST)
+	public ResponseEntity<String> postAddSingle(@RequestParam("left") int left, @RequestParam("right") int right,
+			@RequestParam("result") int result) {
+		WordUtils.updateAddSingle(left, right, result);
+
+		return ResponseEntity.ok().build();
+	}
 
 	/**
 	 * user list
