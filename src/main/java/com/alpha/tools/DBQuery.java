@@ -214,17 +214,11 @@ class DBQuery<T> {
 	private Connection getConnection() throws SQLException {
 		try {
 			Class.forName("com.mysql.jdbc.Driver");
-			// String dbName = System.getProperty("RDS_DB_NAME");
-			// String userName = System.getProperty("RDS_USERNAME");
-			// String password = System.getProperty("RDS_PASSWORD");
-			// String hostname = System.getProperty("RDS_HOSTNAME");
-			// String port = System.getProperty("RDS_PORT");
-
-			String dbName = "StudySite";
-			String userName = "wwalpha";
-			String password = "session10";
-			String hostname = "alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com";
-			String port = "3306";
+			String dbName = System.getProperty("RDS_DB_NAME");
+			String userName = System.getProperty("RDS_USERNAME");
+			String password = System.getProperty("RDS_PASSWORD");
+			String hostname = System.getProperty("RDS_HOSTNAME");
+			String port = System.getProperty("RDS_PORT");
 
 			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
 					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
