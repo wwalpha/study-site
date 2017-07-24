@@ -2,6 +2,7 @@ package com.alpha.bean;
 
 public class UpdateBean {
 	private String word;
+	private String category;
 	private boolean checked;
 	private boolean favorite;
 
@@ -50,4 +51,18 @@ public class UpdateBean {
 		this.favorite = favorite;
 	}
 
+	/**
+	 * @return the category
+	 */
+	public String getCategory() {
+		return category;
+	}
+
+	/**
+	 * @param category
+	 *            the category to set
+	 */
+	public void setCategory(String category) {
+		this.category = category;
+	}
 }

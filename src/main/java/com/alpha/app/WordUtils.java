@@ -397,10 +397,16 @@ public class WordUtils {
 			sb.append(",T1.STUDY_TIME = DATE_FORMAT(NOW(), '%Y%m%d') ");
 			sb.append(
 					",T1.NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (SELECT DAY_DELAY FROM TIMES T2 WHERE T1.USER_ID = T2.USER_ID AND T2.TIMES = T1.TIMES) DAY), '%Y%m%d') ");
+
+			sb.append("T1.NEXT_TIME = nextTime(?, ?, ?, T1.TIMES) ");
 		}
 
 		sb.append(",T1.FAVORITE = ? ");
-		sb.append("WHERE T1.USER_ID = ? AND T1.WORD = ?");
+		sb.append("WHERE T1.USER_ID = ? AND T1.WORD = ? ");
+
+		if (StringUtils.isNotEmpty(bean.getCategory())) {
+			sb.append(" AND T1.CATEGORY = ? ");
+		}
 
 		return sb.toString();
 	}
@@ -415,12 +421,22 @@ public class WordUtils {
 	private List<Object> getUpdateParams(String userName, UpdateBean bean) {
 		List<Object> retList = new ArrayList<Object>();
 
+		// USER
+		retList.add(userName);
+		// WORD
+		retList.add(bean.getWord());
+		// CATEGORY
+		retList.add(bean.getCategory());
 		// FAVORITE
 		retList.add(BooleanUtils.toString(bean.isFavorite(), "1", "0"));
 		// USER
 		retList.add(userName);
 		// WORD
 		retList.add(bean.getWord());
+		// CATEGORY
+		if (StringUtils.isNotEmpty(bean.getCategory())) {
+			retList.add(bean.getCategory());
+		}
 
 		return retList;
 	}
