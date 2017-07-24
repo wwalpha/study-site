@@ -456,19 +456,23 @@ public class WordUtils {
 		return getRandom(newList);
 	}
 
-	public static void updateAddSingle(int left, int right, int result) {
+	public static void updateResult(CalculateBean calcInfo) {
+		// update times
 		List<Object> params = new ArrayList<Object>();
-		params.add(left);
-		params.add(right);
+		params.add(calcInfo.getLeftNum());
+		params.add(calcInfo.getRightNum());
+		params.add(calcInfo.getOperator());
 
-		DBUtils.update(DBUtils.UPDATE_ADD_SINGLE, params.toArray());
+		DBUtils.update(DBUtils.UPDATE_CALC_TIMES, params.toArray());
 
 		params = new ArrayList<Object>();
-		params.add(result);
-		params.add(left);
-		params.add(right);
+		params.add(calcInfo.getResultNum());
+		params.add(calcInfo.getResultNum());
+		params.add(calcInfo.getLeftNum());
+		params.add(calcInfo.getRightNum());
+		params.add(calcInfo.getOperator());
 
-		DBUtils.update(DBUtils.INSERT_ADD_SINGLE_HISTORY, params.toArray());
+		DBUtils.update(DBUtils.INSERT_CALC_HISTORY, params.toArray());
 	}
 
 	private static <T> T getRandom(List<T> list) {

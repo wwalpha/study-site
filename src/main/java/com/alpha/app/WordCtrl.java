@@ -28,12 +28,11 @@ public class WordCtrl {
 		return ResponseEntity.ok(WordUtils.getAddSingle());
 	}
 
-	@RequestMapping(value = "/addsingle", method = RequestMethod.POST)
-	public ResponseEntity<String> postAddSingle(@RequestParam("left") int left, @RequestParam("right") int right,
-			@RequestParam("result") int result) {
-		WordUtils.updateAddSingle(left, right, result);
+	@RequestMapping(value = "/answer", method = RequestMethod.POST)
+	public ResponseEntity<String> postAddSingle(@RequestBody CalculateBean calcInfo) {
+		WordUtils.updateResult(calcInfo);
 
-		return ResponseEntity.ok().build();
+		return ResponseEntity.noContent().build();
 	}
 
 	/**

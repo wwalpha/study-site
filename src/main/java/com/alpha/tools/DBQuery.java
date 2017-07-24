@@ -219,7 +219,6 @@ class DBQuery<T> {
 			String password = System.getProperty("RDS_PASSWORD");
 			String hostname = System.getProperty("RDS_HOSTNAME");
 			String port = System.getProperty("RDS_PORT");
-
 			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
 					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
 			System.out.println(jdbcUrl);

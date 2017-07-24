@@ -1,38 +1,40 @@
 package com.alpha.bean;
 
 public class CalculateBean {
-	private int leftnum;
-	private int rightnum;
+	private int leftNum;
+	private int rightNum;
 	private int times;
+	private int resultNum;
+	private String operator;
 
 	/**
-	 * @return the leftnum
+	 * @return the leftNum
 	 */
-	public int getLeftnum() {
-		return leftnum;
+	public int getLeftNum() {
+		return leftNum;
 	}
 
 	/**
-	 * @param leftnum
-	 *            the leftnum to set
+	 * @param leftNum
+	 *            the leftNum to set
 	 */
-	public void setLeftnum(int leftnum) {
-		this.leftnum = leftnum;
+	public void setLeftNum(int leftNum) {
+		this.leftNum = leftNum;
 	}
 
 	/**
-	 * @return the rightnum
+	 * @return the rightNum
 	 */
-	public int getRightnum() {
-		return rightnum;
+	public int getRightNum() {
+		return rightNum;
 	}
 
 	/**
-	 * @param rightnum
-	 *            the rightnum to set
+	 * @param rightNum
+	 *            the rightNum to set
 	 */
-	public void setRightnum(int rightnum) {
-		this.rightnum = rightnum;
+	public void setRightNum(int rightNum) {
+		this.rightNum = rightNum;
 	}
 
 	/**
@@ -48,6 +50,35 @@ public class CalculateBean {
 	 */
 	public void setTimes(int times) {
 		this.times = times;
+	}
+
+	/**
+	 * @return the resultNum
+	 */
+	public int getResultNum() {
+		return resultNum;
+	}
+
+	/**
+	 * @param resultNum
+	 *            the resultNum to set
+	 */
+	public void setResultNum(int resultNum) {
+		this.resultNum = resultNum;
+	}
+
+	/**
+	 * @return the operator
+	 */
+	public String getOperator() {
+		return operator;
+	}
+
+	/**
+	 * @param operator the operator to set
+	 */
+	public void setOperator(String operator) {
+		this.operator = operator;
 	}
 
 }
