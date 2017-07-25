@@ -17,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alpha.bean.CalculateBean;
 import com.alpha.bean.PlayListBean;
+import com.alpha.bean.ScoreBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.UserBean;
 import com.alpha.bean.WordBean;
@@ -475,6 +476,10 @@ public class WordUtils {
 		DBUtils.update(DBUtils.INSERT_CALC_HISTORY, params.toArray());
 	}
 
+	public static List<ScoreBean> score() {
+		return DBUtils.select(ScoreBean.class, DBUtils.SELECT_CALC_HISTORY);
+	}
+	
 	private static <T> T getRandom(List<T> list) {
 		if (list.size() == 1) {
 			return list.get(0);

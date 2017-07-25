@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.alpha.bean.CalculateBean;
 import com.alpha.bean.PlayListBean;
+import com.alpha.bean.ScoreBean;
 import com.alpha.bean.UpdateBean;
 import com.alpha.bean.UserBean;
 import com.alpha.bean.WordBean;
@@ -29,12 +30,17 @@ public class WordCtrl {
 	}
 
 	@RequestMapping(value = "/answer", method = RequestMethod.POST)
-	public ResponseEntity<String> postAddSingle(@RequestBody CalculateBean calcInfo) {
+	public ResponseEntity<String> answer(@RequestBody CalculateBean calcInfo) {
 		WordUtils.updateResult(calcInfo);
 
 		return ResponseEntity.noContent().build();
 	}
 
+	@RequestMapping(value = "/score", method = RequestMethod.GET)
+	public ResponseEntity<List<ScoreBean>> score() {
+		return ResponseEntity.ok(WordUtils.score());
+	}
+	
 	/**
 	 * user list
 	 * 

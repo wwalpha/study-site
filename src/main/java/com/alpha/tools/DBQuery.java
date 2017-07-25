@@ -173,8 +173,10 @@ class DBQuery<T> {
 				field.set(bean, rs.getObject(i));
 			} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
 				field.setBoolean(bean, BooleanUtils.toBoolean(Integer.parseInt(rs.getString(i)), 1, 0));
-			} else if (field.getType().equals(int.class) || field.getType().equals(Integer.class)) {
+			} else if (field.getType().equals(int.class)) {
 				field.setInt(bean, Integer.parseInt(rs.getString(i)));
+			} else if (field.getType().equals(Integer.class)) {
+				field.set(bean, Integer.valueOf(rs.getString(i)));
 			}
 		}
 
@@ -221,10 +223,8 @@ class DBQuery<T> {
 			String port = System.getProperty("RDS_PORT");
 			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
 					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
-			System.out.println(jdbcUrl);
 
 			Connection con = DriverManager.getConnection(jdbcUrl);
-			System.out.println("Remote connection successful.");
 
 			return con;
 		} catch (ClassNotFoundException e) {
