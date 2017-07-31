@@ -94,7 +94,7 @@ public class WordUtils {
 		}
 
 		if (StringUtils.equals("3", type)) {
-			return DBUtils.select(WordBean.class, DBUtils.SELECT_ALL);
+			return DBUtils.select(WordBean.class, DBUtils.SELECT_FAVORITE, userName);
 		}
 
 		return new ArrayList<WordBean>();
@@ -396,10 +396,7 @@ public class WordUtils {
 		} else {
 			sb.append("T1.TIMES = T1.TIMES + 1 ");
 			sb.append(",T1.STUDY_TIME = DATE_FORMAT(NOW(), '%Y%m%d') ");
-			sb.append(
-					",T1.NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (SELECT DAY_DELAY FROM TIMES T2 WHERE T1.USER_ID = T2.USER_ID AND T2.TIMES = T1.TIMES) DAY), '%Y%m%d') ");
-
-			sb.append("T1.NEXT_TIME = nextTime(?, ?, ?, T1.TIMES) ");
+			sb.append(",T1.NEXT_TIME = nextTime(?, ?, ?, T1.TIMES) ");
 		}
 
 		sb.append(",T1.FAVORITE = ? ");
@@ -422,12 +419,15 @@ public class WordUtils {
 	private List<Object> getUpdateParams(String userName, UpdateBean bean) {
 		List<Object> retList = new ArrayList<Object>();
 
-		// USER
-		retList.add(userName);
-		// WORD
-		retList.add(bean.getWord());
-		// CATEGORY
-		retList.add(bean.getCategory());
+		if (!bean.isChecked()) {
+			// USER
+			retList.add(userName);
+			// CATEGORY
+			retList.add(bean.getCategory());
+			// WORD
+			retList.add(bean.getWord());
+		}
+
 		// FAVORITE
 		retList.add(BooleanUtils.toString(bean.isFavorite(), "1", "0"));
 		// USER
@@ -479,7 +479,7 @@ public class WordUtils {
 	public static List<ScoreBean> score() {
 		return DBUtils.select(ScoreBean.class, DBUtils.SELECT_CALC_HISTORY);
 	}
-	
+
 	private static <T> T getRandom(List<T> list) {
 		if (list.size() == 1) {
 			return list.get(0);

@@ -66,36 +66,38 @@ CREATE FUNCTION nextTime(userId VARCHAR(50), category VARCHAR(50), word VARCHAR(
     COMMENT ''
 BEGIN
 
-   SELECT DAY_LIMIT INTO @dayLimit FROM USERS WHERE USER_ID = userId;
-   SELECT DAY_DELAY INTO @dayDelay FROM TIMES WHERE USER_ID = userId AND TIMES = times;
+	SELECT DAY_LIMIT INTO @dayLimit FROM USERS WHERE USER_ID = userId;
+	SELECT DAY_DELAY INTO @dayDelay FROM TIMES WHERE USER_ID = userId AND TIMES = times;
    
-   SET @count = 0;
+	SET @count = 0;
 
-   NEXT: LOOP
-       SELECT
-           COUNT(*)
-       INTO
-           @wordCount
-       FROM
-           WORDS
-       WHERE
-           USER_ID = userId
-           AND CATEGORY = category
-           AND WORD = word
-		   AND NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @count) DAY), '%Y%m%d')
-       INTO 
+	NEXT: LOOP
+		SELECT
+       	    COUNT(*)
+      	 INTO
+       	    @wordCount
+       	FROM
+       	    WORDS
+       	WHERE
+       	    USER_ID = userId
+       	    AND CATEGORY = category
+       	    AND WORD = word
+		    AND NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @count) DAY), '%Y%m%d')
+       	INTO 
        
-       IF @wordCount < @dayLimit THEN
-           UPDATE
-               WORDS
-           SET
-               NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @count) DAY), '%Y%m%d')
-           WHERE
-               USER_ID = userId
-               AND CATEGORY = category
-               AND WORD = word
-           
-           LEAVE NEXT;
+       	IF @wordCount < @dayLimit THEN
+			BEGIN
+	           UPDATE
+	               WORDS
+	           SET
+	               NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @count) DAY), '%Y%m%d')
+	           WHERE
+	               USER_ID = userId
+	               AND CATEGORY = category
+	               AND WORD = word
+	           
+	           LEAVE NEXT;
+	        END
        END IF;
        
        SET @count = @count + 1; 

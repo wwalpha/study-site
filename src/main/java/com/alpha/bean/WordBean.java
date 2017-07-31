@@ -23,6 +23,7 @@ public class WordBean {
 	private int endPos;
 	private boolean favorite;
 	private String sound;
+	private String category;
 
 	/**
 	 * @return the word
@@ -220,17 +221,34 @@ public class WordBean {
 	}
 
 	/**
-	 * @param studyTime the studyTime to set
+	 * @param studyTime
+	 *            the studyTime to set
 	 */
 	public void setStudyTime(int studyTime) {
 		this.studyTime = studyTime;
 	}
-	
+
+	/**
+	 * @return the category
+	 */
+	public String getCategory() {
+		return category;
+	}
+
+	/**
+	 * @param category
+	 *            the category to set
+	 */
+	public void setCategory(String category) {
+		this.category = category;
+	}
+
 	public String toString() {
 		List<String> retList = new ArrayList<String>();
 
 		retList.add(userName);
 		retList.add(word);
+		retList.add(category);
 		retList.add(pronounce);
 		retList.add(vocabulary);
 		retList.add(StringUtils.leftPad(String.valueOf(nextTime), 8, "0"));
