@@ -26,12 +26,14 @@ import com.alpha.tools.DBUtils;
 public class WordUtils {
 
 	private static WordUtils utils;
-
+	private static Map<String, List<WordBean>> wordMap;
+	
 	private WordUtils() {
 	}
 
 	static {
 		utils = new WordUtils();
+		wordMap = new HashMap<>();
 	}
 
 	public enum WordType {
@@ -155,7 +157,17 @@ public class WordUtils {
 	 * @return
 	 */
 	public static List<String> getUsers() {
-		return DBUtils.select(String.class, DBUtils.SELECT_USERS);
+		List<String> users = DBUtils.select(String.class, DBUtils.SELECT_USERS);
+		
+		for (String user : users) {
+			if (wordMap.containsKey(user)) {
+				continue;
+			}
+			
+			wordMap.put(user, new ArrayList<>());
+		}
+		
+		return users;
 	}
 
 	/**
@@ -185,41 +197,46 @@ public class WordUtils {
 	 * @return
 	 */
 	public static List<WordBean> getNextList(String userName, String type, String categories) {
+		List<WordBean> cacheList = wordMap.get(userName);
+		
+		// Has cache
+		if (cacheList.size() != 0) {
+			if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
+				return getRandomList(cacheList, 7);	
+			}
+		}
+
 		List<WordBean> retList = new ArrayList<>();
 		Set<String> set = new HashSet<>();
 
-		List<WordBean> userList = utils.getUserList(userName, type, categories);
+		List<WordBean> wordList = utils.getUserList(userName, type, categories);
 
 		// not found the user's data
-		if (userList.size() == 0) {
+		if (wordList.size() == 0) {
 			return retList;
 		}
-
-		Integer offset = 7;// Integer.valueOf(utils.getValue(userName,
+		
+		Integer offset = 7; // Integer.valueOf(utils.getValue(userName,
 							// PAGE_OFFSET));
 
 		// new words
 		if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
-			int maxInt = userList.size();
+			// cache it
+			wordMap.put(userName, wordList);
 
-			for (;;) {
-				Random r = new Random();
-				int nextInt = r.nextInt(maxInt - 1);
-
-				if (!retList.contains(userList.get(nextInt))) {
-					retList.add(userList.get(nextInt));
-				}
-
-				if (retList.size() == offset) {
-					break;
-				}
-			}
+			return getRandomList(wordList, offset);
 		}
 
 		// review words
 		if (StringUtils.equals("2", type)) {
+			// no more for one page
+			if (wordList.size() < offset) {
+				return wordList;
+			}
+			
+			// find a word
 			while (retList.size() < offset) {
-				WordBean newWord = utils.getNextWord(userList);
+				WordBean newWord = utils.getNextWord(wordList);
 
 				if (set.contains(newWord.getWord())) {
 					continue;
@@ -232,11 +249,7 @@ public class WordUtils {
 		}
 
 		if (StringUtils.equals("3", type)) {
-			if (userList.size() > offset) {
-				retList.addAll(userList.subList(0, offset - 1));
-			} else {
-				retList.addAll(userList);
-			}
+			return getRandomList(wordList, offset);
 		}
 
 		return retList;
@@ -489,5 +502,32 @@ public class WordUtils {
 		int nextInt = r.nextInt(list.size() - 1);
 
 		return list.get(nextInt);
+	}
+
+	/**
+	 * delete random object from origin list
+	 * 
+	 * @param list
+	 * @param max
+	 * @return
+	 */
+	private static <T> List<T> getRandomList(List<T> list, int max) {
+		List<T> retList = new ArrayList<>();
+		
+		if (max <= 0) {
+			return retList;
+		}
+
+		int maxValue = list.size() > max ? max : list.size();
+		
+		while(retList.size() != maxValue) {
+			T t = getRandom(list);
+			
+			retList.add(t);
+
+			list.remove(t);
+		}
+
+		return list;
 	}
 }
