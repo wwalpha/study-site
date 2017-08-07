@@ -70,7 +70,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping("/{user}/{type}/nextpage")
 	public ResponseEntity<List<WordBean>> nextPage(@PathVariable String user, @PathVariable String type,
-			@RequestParam(value = "categories") String categories) {
+			@RequestParam(value = "categories", required = false) String categories) {
 		return ResponseEntity.ok(WordUtils.getNextList(user, type, categories));
 	}
 
@@ -84,7 +84,7 @@ public class WordCtrl {
 	 */
 	@RequestMapping(value = "/{user}/{type}/save", method = RequestMethod.POST)
 	public ResponseEntity<List<WordBean>> save(@PathVariable String user, @PathVariable String type,
-			@RequestBody List<UpdateBean> reqlist, @RequestParam(value = "categories") String categories) {
+			@RequestBody List<UpdateBean> reqlist, @RequestParam(value = "categories", required = false) String categories) {
 		WordUtils.save(user, reqlist);
 
 		return ResponseEntity.ok(WordUtils.getNextList(user, type, categories));

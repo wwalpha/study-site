@@ -201,7 +201,7 @@ public class WordUtils {
 		
 		// Has cache
 		if (cacheList.size() != 0) {
-			if (Arrays.asList(new String[] { "1", "4" }).contains(type)) {
+			if (StringUtils.equals("1", type)) {
 				return getRandomList(cacheList, 7);	
 			}
 		}
@@ -528,6 +528,6 @@ public class WordUtils {
 			list.remove(t);
 		}
 
-		return list;
+		return retList;
 	}
 }
