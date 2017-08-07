@@ -27,7 +27,7 @@ public class WordUtils {
 
 	private static WordUtils utils;
 	private static Map<String, List<WordBean>> wordMap;
-	
+
 	private WordUtils() {
 	}
 
@@ -158,15 +158,15 @@ public class WordUtils {
 	 */
 	public static List<String> getUsers() {
 		List<String> users = DBUtils.select(String.class, DBUtils.SELECT_USERS);
-		
+
 		for (String user : users) {
 			if (wordMap.containsKey(user)) {
 				continue;
 			}
-			
+
 			wordMap.put(user, new ArrayList<>());
 		}
-		
+
 		return users;
 	}
 
@@ -189,6 +189,9 @@ public class WordUtils {
 			userBean.setCtgNames(new ArrayList<>());
 		}
 
+		// clear cache
+		wordMap.get(userName).clear();
+
 		return userBean;
 	}
 
@@ -198,12 +201,10 @@ public class WordUtils {
 	 */
 	public static List<WordBean> getNextList(String userName, String type, String categories) {
 		List<WordBean> cacheList = wordMap.get(userName);
-		
+
 		// Has cache
-		if (cacheList.size() != 0) {
-			if (StringUtils.equals("1", type)) {
-				return getRandomList(cacheList, 7);	
-			}
+		if (cacheList.size() != 0 && StringUtils.equals("1", type)) {
+			return getRandomList(cacheList, 7);
 		}
 
 		List<WordBean> retList = new ArrayList<>();
@@ -215,7 +216,7 @@ public class WordUtils {
 		if (wordList.size() == 0) {
 			return retList;
 		}
-		
+
 		Integer offset = 7; // Integer.valueOf(utils.getValue(userName,
 							// PAGE_OFFSET));
 
@@ -233,7 +234,7 @@ public class WordUtils {
 			if (wordList.size() < offset) {
 				return wordList;
 			}
-			
+
 			// find a word
 			while (retList.size() < offset) {
 				WordBean newWord = utils.getNextWord(wordList);
@@ -249,6 +250,9 @@ public class WordUtils {
 		}
 
 		if (StringUtils.equals("3", type)) {
+			// cache it
+			wordMap.put(userName, wordList);
+
 			return getRandomList(wordList, offset);
 		}
 
@@ -513,16 +517,16 @@ public class WordUtils {
 	 */
 	private static <T> List<T> getRandomList(List<T> list, int max) {
 		List<T> retList = new ArrayList<>();
-		
+
 		if (max <= 0) {
 			return retList;
 		}
 
 		int maxValue = list.size() > max ? max : list.size();
-		
-		while(retList.size() != maxValue) {
+
+		while (retList.size() != maxValue) {
 			T t = getRandom(list);
-			
+
 			retList.add(t);
 
 			list.remove(t);
