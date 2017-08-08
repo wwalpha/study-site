@@ -24,8 +24,7 @@ BEGIN
        	    USER_ID = inUserId
        	    AND (CATEGORY IS NULL OR CATEGORY = inCategory)
        	    AND WORD = inWord
-		    AND NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @dayCount) DAY), '%Y%m%d')
-       	INTO 
+		    AND NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @dayCount) DAY), '%Y%m%d');
        
        	IF @wordCount < @dayLimit THEN
 			LEAVE NEXT;
