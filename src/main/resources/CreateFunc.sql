@@ -1,6 +1,6 @@
 DROP FUNCTION IF EXISTS nextTime;
 CREATE FUNCTION nextTime(inUserId VARCHAR(50), inCategory VARCHAR(50), inWord VARCHAR(100), inTimes INT)
-    RETURNS DATETIME
+    RETURNS CHAR(8)
     LANGUAGE SQL
     DETERMINISTIC
     CONTAINS SQL
@@ -25,7 +25,7 @@ BEGIN
        	    AND (CATEGORY IS NULL OR CATEGORY = inCategory)
        	    AND WORD = inWord
 		    AND NEXT_TIME = DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @dayCount) DAY), '%Y%m%d');
-       
+
        	IF @wordCount < @dayLimit THEN
 			LEAVE NEXT;
        	END IF;
@@ -33,5 +33,5 @@ BEGIN
        	SET @dayCount = @dayCount + 1; 
    END LOOP;
    
-   RETURN DATE_FORMAT(DATE_ADD(NOW(), INTERVAL(@dayDelay + @dayCount) DAY), '%Y%m%d');
+   RETURN DATE_FORMAT(DATE_ADD(NOW(), INTERVAL (@dayDelay + @dayCount) DAY), '%Y%m%d');
 END
