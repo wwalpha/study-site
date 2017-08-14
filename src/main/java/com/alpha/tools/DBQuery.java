@@ -89,6 +89,26 @@ class DBQuery<T> {
 		return retList;
 	}
 
+	public int selectCount(String strSQL, Object... params) {
+		System.out.println(strSQL);
+
+		try {
+			this.conn = getConnection();
+			this.stmt = conn.prepareStatement(strSQL);
+
+			this.setParameters(params);
+
+			this.rs = stmt.executeQuery();
+
+			return rs.getInt(1);
+		} catch (SQLException e) {
+			System.out.println(e.toString());
+			return 0;
+		} finally {
+			this.close();
+		}
+	}
+
 	/**
 	 * 
 	 * @param strSQL
@@ -97,21 +117,16 @@ class DBQuery<T> {
 	 */
 	public int update(String strSQL, Object... params) {
 		try {
-			System.out.println(strSQL);
 			this.conn = getConnection();
 			this.stmt = conn.prepareStatement(strSQL);
-		} catch (SQLException e) {
-			System.out.println(e.toString());
-			this.close();
-			return 0;
-		}
-
-		try {
+			
 			setParameters(params);
 
 			return this.stmt.executeUpdate();
 		} catch (SQLException e) {
 			System.out.println(e.toString());
+		} finally {
+			this.close();
 		}
 
 		return 0;
@@ -221,7 +236,7 @@ class DBQuery<T> {
 			String password = System.getProperty("RDS_PASSWORD");
 			String hostname = System.getProperty("RDS_HOSTNAME");
 			String port = System.getProperty("RDS_PORT");
-			
+
 			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
 					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
 

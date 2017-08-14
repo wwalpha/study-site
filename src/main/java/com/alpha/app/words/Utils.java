@@ -113,7 +113,7 @@ public class Utils {
 
 		// Has cache
 		if (cacheList.size() != 0) {
-			return getRandomList(cacheList, 7);
+			return getRandomList(cacheList, getPageOffset(userName));
 		}
 
 		// select new words
@@ -142,6 +142,13 @@ public class Utils {
 	 * @return
 	 */
 	private List<WordBean> pattern2(String userName, String categories) {
+		int count = query.cntReviews(userName);
+
+		// 当日制限超えた
+		if (count > getDayLimit(userName)) {
+			return new ArrayList<>();
+		}
+
 		List<WordBean> wordsList = query.getReviewWords(userName, categories);
 
 		int offset = getPageOffset(userName);
@@ -339,5 +346,21 @@ public class Utils {
 		}
 
 		return userInfo.getPageOffset();
+	}
+
+	/**
+	 * Page Offset Number
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	private int getDayLimit(String userName) {
+		UserBean userInfo = userMap.get(userName);
+
+		if (userInfo == null) {
+			return 200;
+		}
+
+		return userInfo.getDayLimit();
 	}
 }

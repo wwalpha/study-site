@@ -23,6 +23,10 @@ public class DBQuery {
 		return retList.get(0);
 	}
 
+	public int cntReviews(String userName) {
+		return DBUtils.selectCount(DBUtils.SELECT_COUNT_REVIEWS, userName);
+	}
+
 	public List<String> getCategories(String userName) {
 		return DBUtils.select(String.class, DBUtils.SELECT_USER_CTG, userName);
 	}
@@ -42,10 +46,10 @@ public class DBQuery {
 	public int updateWord(String userName, UpdateBean bean) {
 		String updateSQL = getUpdateSQL(bean);
 		List<Object> params = getUpdateParams(userName, bean);
-		
+
 		return DBUtils.update(updateSQL, params.toArray());
 	}
-	
+
 	/**
 	 * 
 	 * @param userName
@@ -94,7 +98,6 @@ public class DBQuery {
 
 		return sb.toString();
 	}
-	
 
 	/**
 	 * get update sql
@@ -126,7 +129,7 @@ public class DBQuery {
 
 		return sb.toString();
 	}
-	
+
 	/**
 	 * get update parameters
 	 * 

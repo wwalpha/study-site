@@ -11,7 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.alpha.bean.WordBean;
 
 public class DBUtils {
-	
+
 	public static final String SELECT_ALL = "SELECT USER_ID AS USERNAME, CATEGORY, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? ";
 	public static final String SELECT_FAVORITE = "SELECT USER_ID AS USERNAME, CATEGORY, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND FAVORITE = '1' ";
 	public static final String SELECT_USERS = "SELECT USER_ID FROM USERS";
@@ -21,6 +21,7 @@ public class DBUtils {
 	public static final String SELECT_NEWWORD = "SELECT DISTINCT USER_ID AS USERNAME, WORD, CATEGORY, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= DATE_FORMAT(NOW(),'%Y%m%d') AND (TIMES = 0 OR TIMES = 9999) ";
 	public static final String SELECT_REVIEW = "SELECT DISTINCT USER_ID AS USERNAME, WORD, CATEGORY, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND NEXT_TIME <= DATE_FORMAT(NOW(),'%Y%m%d') AND TIMES <> 0 ";
 	public static final String SELECT_PLAYLIST = "SELECT WORD, SOUND FROM WORDS WHERE USER_ID = ? AND STUDY_TIME = DATE_FORMAT(NOW(),'%Y%m%d') AND SOUND IS NOT NULL ORDER BY WORD_NO";
+	public static final String SELECT_COUNT_REVIEWS = "SELECT COUNT(USER_ID) FROM WORDS WHERE USER_ID = ? AND STUDY_TIME = DATE_FORMAT(NOW(),'%Y%m%d') AND TIMES != 0 ";
 
 	public static final String UPDATE_WORDS = "UPDATE WORDS SET TIMES = TIMES + 1, STUDY_TIME = ?, NEXT_TIME = ?, FAVORITE = ? WHERE USER_ID = ? AND WORD = ?";
 
@@ -46,17 +47,17 @@ public class DBUtils {
 	}
 
 	@SuppressWarnings("rawtypes")
+	public static int selectCount(String strSQL, Object... params) {
+		DBQuery query = new DBQuery();
+
+		return query.selectCount(strSQL, params);
+	}
+
+	@SuppressWarnings("rawtypes")
 	public static int update(String strSQL, Object... params) {
 		DBQuery query = new DBQuery();
 
-		try {
-			return query.update(strSQL, params);
-		} catch (Exception e) {
-		} finally {
-			query.close();
-		}
-
-		return 0;
+		return query.update(strSQL, params);
 	}
 
 	@SuppressWarnings({ "rawtypes", "unchecked" })
@@ -169,8 +170,7 @@ public class DBUtils {
 				sqlList.add(sb.toString());
 			}
 
-//			DBUtils.execBatch(sqlList);
+			// DBUtils.execBatch(sqlList);
 		}
-
 	}
 }
