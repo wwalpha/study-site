@@ -83,7 +83,7 @@ public class Utils {
 	 */
 	public static List<WordBean> getNextList(String userName, String type, String categories) {
 		// New words
-		if (StringUtils.equals(WordType.New, type)) {
+		if (StringUtils.equals(WordType.New, type) || StringUtils.equals(WordType.NewSingle, type)) {
 			return utils.pattern1(userName, categories);
 		}
 

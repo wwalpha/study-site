@@ -28,7 +28,13 @@ public class Utils {
 			newList = retList;
 		}
 
-		return getRandom(newList);
+		return getRandom(getNewList(retList));
+	}
+
+	public static CalculateBean getMinusSingle() {
+		List<CalculateBean> retList = query.minusSingle();
+
+		return getRandom(getNewList(retList));
 	}
 
 	public static void updateResult(CalculateBean calcInfo) {
@@ -38,6 +44,19 @@ public class Utils {
 
 	public static List<ScoreBean> score() {
 		return query.getScores();
+	}
+
+	private static List<CalculateBean> getNewList(List<CalculateBean> list) {
+		int maxTimes = list.stream().max(Comparator.comparingInt(k -> k.getTimes())).get().getTimes();
+
+		List<CalculateBean> newList = list.stream().filter(p -> p.getTimes() == (maxTimes - 1))
+				.collect(Collectors.toList());
+
+		if (newList.size() == 0) {
+			newList = list;
+		}
+
+		return newList;
 	}
 
 	private static <T> T getRandom(List<T> list) {

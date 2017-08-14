@@ -6,6 +6,7 @@ public class CalculateBean {
 	private int times;
 	private int resultNum;
 	private String operator;
+	private String startTime;
 
 	/**
 	 * @return the leftNum
@@ -79,6 +80,20 @@ public class CalculateBean {
 	 */
 	public void setOperator(String operator) {
 		this.operator = operator;
+	}
+
+	/**
+	 * @return the startTime
+	 */
+	public String getStartTime() {
+		return startTime;
+	}
+
+	/**
+	 * @param startTime the startTime to set
+	 */
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
 	}
 
 }

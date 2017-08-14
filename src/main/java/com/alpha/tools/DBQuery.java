@@ -99,7 +99,7 @@ class DBQuery<T> {
 			this.setParameters(params);
 
 			this.rs = stmt.executeQuery();
-
+			this.rs.next();
 			return rs.getInt(1);
 		} catch (SQLException e) {
 			System.out.println(e.toString());
@@ -119,7 +119,7 @@ class DBQuery<T> {
 		try {
 			this.conn = getConnection();
 			this.stmt = conn.prepareStatement(strSQL);
-			
+
 			setParameters(params);
 
 			return this.stmt.executeUpdate();
@@ -236,6 +236,12 @@ class DBQuery<T> {
 			String password = System.getProperty("RDS_PASSWORD");
 			String hostname = System.getProperty("RDS_HOSTNAME");
 			String port = System.getProperty("RDS_PORT");
+
+			dbName = "StudySite";
+			userName = "wwalpha";
+			password = "session10";
+			hostname = "alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com";
+			port = "3306";
 
 			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
 					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";

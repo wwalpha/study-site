@@ -14,11 +14,16 @@ import com.alpha.bean.ScoreBean;
 
 @RestController
 @CrossOrigin
-public class Controller {
+public class CalcCtrl {
 
 	@RequestMapping(value = "/addsingle", method = RequestMethod.GET)
 	public ResponseEntity<CalculateBean> getAddSingle() {
 		return ResponseEntity.ok(Utils.getAddSingle());
+	}
+	
+	@RequestMapping(value = "/minsingle", method = RequestMethod.GET)
+	public ResponseEntity<CalculateBean> getMinusSingle() {
+		return ResponseEntity.ok(Utils.getMinusSingle());
 	}
 
 	@RequestMapping(value = "/answer", method = RequestMethod.POST)

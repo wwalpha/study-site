@@ -18,7 +18,7 @@ import com.alpha.bean.WordBean;
 
 @RestController
 @CrossOrigin
-public class Controller {
+public class WordCtrl {
 
 	/**
 	 * user list

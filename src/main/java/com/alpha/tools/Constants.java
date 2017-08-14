@@ -9,5 +9,6 @@ public class Constants {
 		public static final String New = "1";
 		public static final String Review = "2";
 		public static final String Favorite = "3";
+		public static final String NewSingle = "4";
 	}
 }
