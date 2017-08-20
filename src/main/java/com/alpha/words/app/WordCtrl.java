@@ -1,4 +1,4 @@
-package com.alpha.app.words;
+package com.alpha.words.app;
 
 import java.util.List;
 
@@ -11,10 +11,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alpha.bean.PlayListBean;
-import com.alpha.bean.UpdateBean;
-import com.alpha.bean.UserBean;
-import com.alpha.bean.WordBean;
+import com.alpha.words.bean.PlayListBean;
+import com.alpha.words.bean.StatisticBean;
+import com.alpha.words.bean.UpdateBean;
+import com.alpha.words.bean.UserBean;
+import com.alpha.words.bean.WordBean;
 
 @RestController
 @CrossOrigin
@@ -38,6 +39,11 @@ public class WordCtrl {
 	@RequestMapping("/{user}/userprops")
 	public ResponseEntity<UserBean> userprops(@PathVariable String user) {
 		return ResponseEntity.ok(Utils.getUserProps(user));
+	}
+
+	@RequestMapping("/{user}/statistic")
+	public ResponseEntity<StatisticBean> statistic(@PathVariable String user) {
+		return ResponseEntity.ok(Utils.getStatistic(user));
 	}
 
 	/**
@@ -93,7 +99,8 @@ public class WordCtrl {
 	// * @return
 	// */
 	// @RequestMapping(value = "/{user}/upload", method = RequestMethod.POST)
-	// public ResponseEntity<String> upload(@PathVariable String user, MultipartFile
+	// public ResponseEntity<String> upload(@PathVariable String user,
+	// MultipartFile
 	// file) {
 	// boolean result = WordUtils.upload(user, file);
 	//
@@ -112,16 +119,17 @@ public class WordCtrl {
 		return ResponseEntity.ok(Utils.getPlayList(user));
 	}
 
-//	/**
-//	 * settings
-//	 * 
-//	 * @param file
-//	 * @return
-//	 */
-//	@RequestMapping(value = "/settings", method = RequestMethod.POST)
-//	public ResponseEntity<String> settings(MultipartFile file) {
-//		boolean result = false;// WordUtils3.updateSettings(file);
-//
-//		return result ? ResponseEntity.ok().build() : ResponseEntity.noContent().build();
-//	}
+	// /**
+	// * settings
+	// *
+	// * @param file
+	// * @return
+	// */
+	// @RequestMapping(value = "/settings", method = RequestMethod.POST)
+	// public ResponseEntity<String> settings(MultipartFile file) {
+	// boolean result = false;// WordUtils3.updateSettings(file);
+	//
+	// return result ? ResponseEntity.ok().build() :
+	// ResponseEntity.noContent().build();
+	// }
 }

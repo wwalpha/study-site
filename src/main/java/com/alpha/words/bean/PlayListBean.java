@@ -1,4 +1,4 @@
-package com.alpha.bean;
+package com.alpha.words.bean;
 
 public class PlayListBean {
 	private String source;

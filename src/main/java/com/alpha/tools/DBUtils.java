@@ -8,13 +8,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.alpha.bean.WordBean;
+import com.alpha.words.bean.WordBean;
 
 public class DBUtils {
 
 	public static final String SELECT_ALL = "SELECT USER_ID AS USERNAME, CATEGORY, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? ";
 	public static final String SELECT_FAVORITE = "SELECT USER_ID AS USERNAME, CATEGORY, WORD, PRONOUNCE, VOCABULARY, NEXT_TIME AS NEXTTIME, STUDY_TIME AS STUDYTIME, TIMES, FAVORITE, SOUND FROM WORDS WHERE USER_ID = ? AND FAVORITE = '1' ";
-	public static final String SELECT_USERS = "SELECT USER_ID FROM USERS";
 	public static final String SELECT_USER_PROPS = "SELECT PAGE_OFFSET, DAY_LIMIT FROM USERS WHERE USER_ID = ? ";
 	public static final String SELECT_USER_CTG = "SELECT DISTINCT CATEGORY FROM WORDS WHERE USER_ID = ? AND CATEGORY IS NOT NULL ";
 

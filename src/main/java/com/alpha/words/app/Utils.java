@@ -1,4 +1,4 @@
-package com.alpha.app.words;
+package com.alpha.words.app;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -12,11 +12,12 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.alpha.bean.PlayListBean;
-import com.alpha.bean.UpdateBean;
-import com.alpha.bean.UserBean;
-import com.alpha.bean.WordBean;
 import com.alpha.tools.Constants.WordType;
+import com.alpha.words.bean.PlayListBean;
+import com.alpha.words.bean.StatisticBean;
+import com.alpha.words.bean.UpdateBean;
+import com.alpha.words.bean.UserBean;
+import com.alpha.words.bean.WordBean;
 
 public class Utils {
 
@@ -75,6 +76,15 @@ public class Utils {
 		userMap.put(userName, userBean);
 
 		return userBean;
+	}
+
+	/**
+	 * 
+	 * @param userName
+	 * @return
+	 */
+	public static StatisticBean getStatistic(String userName) {
+		return query.getStatistic(userName);
 	}
 
 	/**

@@ -1,4 +1,4 @@
-package com.alpha.app.words;
+package com.alpha.words.app;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,15 +6,30 @@ import java.util.List;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import com.alpha.bean.UpdateBean;
-import com.alpha.bean.UserBean;
-import com.alpha.bean.WordBean;
 import com.alpha.tools.DBUtils;
+import com.alpha.words.bean.StatisticBean;
+import com.alpha.words.bean.UpdateBean;
+import com.alpha.words.bean.UserBean;
+import com.alpha.words.bean.WordBean;
 
 public class DBQuery {
 
+	public static final String SELECT_USERS = "SELECT USER_ID FROM USERS";
+
+	public static final String SELECT_TODAY_HISTORY = "SELECT SUM(CASE WHEN TIMES = 1 THEN 1 ELSE 0 END) AS NEWCOUNT, SUM(CASE WHEN TIMES != 1 THEN 1 ELSE 0 END) AS REVIEWCOUNT FROM WORDS WHERE USER_ID = ? AND STUDY_TIME = DATE_FORMAT(NOW(),'%Y%m%d')";
+
 	public List<String> getUsers() {
-		return DBUtils.select(String.class, DBUtils.SELECT_USERS);
+		return DBUtils.select(String.class, SELECT_USERS);
+	}
+
+	public StatisticBean getStatistic(String userName) {
+		List<StatisticBean> retList = DBUtils.select(StatisticBean.class, SELECT_TODAY_HISTORY, userName);
+
+		if (retList.size() == 0) {
+			return new StatisticBean();
+		}
+
+		return retList.get(0);
 	}
 
 	public UserBean getUserProps(String userName) {

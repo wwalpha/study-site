@@ -1,12 +1,12 @@
-package com.alpha.app.calculate;
+package com.alpha.calculate.app;
 
 import java.util.Comparator;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-import com.alpha.bean.CalculateBean;
-import com.alpha.bean.ScoreBean;
+import com.alpha.calculate.bean.CalculateBean;
+import com.alpha.calculate.bean.ScoreBean;
 
 public class Utils {
 

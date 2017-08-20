@@ -1,4 +1,4 @@
-package com.alpha.bean;
+package com.alpha.words.bean;
 
 import java.util.List;
 

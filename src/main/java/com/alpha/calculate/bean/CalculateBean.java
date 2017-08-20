@@ -1,4 +1,4 @@
-package com.alpha.bean;
+package com.alpha.calculate.bean;
 
 public class CalculateBean {
 	private int leftNum;

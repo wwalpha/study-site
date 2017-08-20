@@ -1,4 +1,4 @@
-package com.alpha.app.calculate;
+package com.alpha.calculate.app;
 
 import java.util.List;
 
@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.alpha.bean.CalculateBean;
-import com.alpha.bean.ScoreBean;
+import com.alpha.calculate.bean.CalculateBean;
+import com.alpha.calculate.bean.ScoreBean;
 
 @RestController
 @CrossOrigin

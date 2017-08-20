@@ -1,10 +1,10 @@
-package com.alpha.app.calculate;
+package com.alpha.calculate.app;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import com.alpha.bean.CalculateBean;
-import com.alpha.bean.ScoreBean;
+import com.alpha.calculate.bean.CalculateBean;
+import com.alpha.calculate.bean.ScoreBean;
 import com.alpha.tools.DBUtils;
 
 public class DBQuery {

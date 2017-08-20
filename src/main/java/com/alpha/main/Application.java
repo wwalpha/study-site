@@ -5,8 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.boot.web.support.SpringBootServletInitializer;
 
-import com.alpha.app.calculate.CalcCtrl;
-import com.alpha.app.words.WordCtrl;
+import com.alpha.calculate.app.CalcCtrl;
+import com.alpha.words.app.WordCtrl;
 
 @SpringBootApplication
 public class Application extends SpringBootServletInitializer {
