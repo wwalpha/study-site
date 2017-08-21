@@ -16,20 +16,16 @@ public class DBQuery {
 
 	public static final String SELECT_USERS = "SELECT USER_ID FROM USERS";
 
-	public static final String SELECT_TODAY_HISTORY = "SELECT SUM(CASE WHEN TIMES = 1 THEN 1 ELSE 0 END) AS NEWCOUNT, SUM(CASE WHEN TIMES != 1 THEN 1 ELSE 0 END) AS REVIEWCOUNT FROM WORDS WHERE USER_ID = ? AND STUDY_TIME = DATE_FORMAT(NOW(),'%Y%m%d')";
+	public static final String SELECT_HISTORY = "SELECT STUDY_TIME AS STUDYTIME, SUM(CASE WHEN TIMES = 1 THEN 1 ELSE 0 END) AS NEWCOUNT, SUM(CASE WHEN TIMES != 1 THEN 1 ELSE 0 END) AS REVIEWCOUNT FROM WORD_HISTORY WHERE USER_ID = ? GROUP BY STUDY_TIME ORDER BY STUDY_TIME DESC LIMIT 3";
+
+	public static final String INSERT_HISTORY = "INSERT INTO WORD_HISTORY(USER_ID, CATEGORY, WORD, STUDY_TIME, TIMES) SELECT USER_ID, CATEGORY, WORD, STUDY_TIME, TIMES FROM WORDS WHERE USER_ID = ? AND WORD = ? ";
 
 	public List<String> getUsers() {
 		return DBUtils.select(String.class, SELECT_USERS);
 	}
 
-	public StatisticBean getStatistic(String userName) {
-		List<StatisticBean> retList = DBUtils.select(StatisticBean.class, SELECT_TODAY_HISTORY, userName);
-
-		if (retList.size() == 0) {
-			return new StatisticBean();
-		}
-
-		return retList.get(0);
+	public List<StatisticBean> getStatistic(String userName) {
+		return DBUtils.select(StatisticBean.class, SELECT_HISTORY, userName);
 	}
 
 	public UserBean getUserProps(String userName) {
@@ -63,6 +59,32 @@ public class DBQuery {
 		List<Object> params = getUpdateParams(userName, bean);
 
 		return DBUtils.update(updateSQL, params.toArray());
+	}
+
+	/**
+	 * 履歴登録
+	 * @param userName
+	 * @param bean
+	 * @return
+	 */
+	public int insertHistory(String userName, UpdateBean bean) {
+		String strSQL = INSERT_HISTORY;
+
+		if (StringUtils.isNotEmpty(bean.getCategory())) {
+			strSQL += " AND CATEGORY = ? ";
+		}
+
+		List<Object> paramList = new ArrayList<Object>();
+		// USER
+		paramList.add(userName);
+		// WORD
+		paramList.add(bean.getWord());
+		// CATEGORY
+		if (StringUtils.isNotEmpty(bean.getCategory())) {
+			paramList.add(bean.getCategory());
+		}
+
+		return DBUtils.update(strSQL, paramList.toArray());
 	}
 
 	/**

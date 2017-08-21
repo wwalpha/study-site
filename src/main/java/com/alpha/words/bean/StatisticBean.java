@@ -1,6 +1,7 @@
 package com.alpha.words.bean;
 
 public class StatisticBean {
+	private String studyTime;
 	private int newCount;
 	private int reviewCount;
 
@@ -32,6 +33,20 @@ public class StatisticBean {
 	 */
 	public void setReviewCount(int reviewCount) {
 		this.reviewCount = reviewCount;
+	}
+
+	/**
+	 * @return the studyTime
+	 */
+	public String getStudyTime() {
+		return studyTime;
+	}
+
+	/**
+	 * @param studyTime the studyTime to set
+	 */
+	public void setStudyTime(String studyTime) {
+		this.studyTime = studyTime;
 	}
 
 }

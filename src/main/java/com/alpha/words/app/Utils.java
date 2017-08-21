@@ -83,7 +83,7 @@ public class Utils {
 	 * @param userName
 	 * @return
 	 */
-	public static StatisticBean getStatistic(String userName) {
+	public static List<StatisticBean> getStatistic(String userName) {
 		return query.getStatistic(userName);
 	}
 
@@ -92,6 +92,15 @@ public class Utils {
 	 * @return
 	 */
 	public static List<WordBean> getNextList(String userName, String type, String categories) {
+		UserBean userBean = userMap.get(userName);
+
+		if (StringUtils.equals(userBean.getCategories(), categories) || StringUtils.equals(userBean.getType(), type)) {
+			userBean.setCategories(categories);
+			userBean.setType(type);
+
+			wordMap.get(userName).clear();
+		}
+
 		// New words
 		if (StringUtils.equals(WordType.New, type) || StringUtils.equals(WordType.NewSingle, type)) {
 			return utils.pattern1(userName, categories);
@@ -227,6 +236,8 @@ public class Utils {
 
 		for (final UpdateBean bean : newList) {
 			query.updateWord(userName, bean);
+			
+			query.insertHistory(userName, bean);
 		}
 	}
 

@@ -7,6 +7,9 @@ public class UserBean {
 	private int pageOffset;
 	private int dayLimit;
 
+	private String categories;
+	private String type;
+
 	/**
 	 * @return the ctgNames
 	 */
@@ -50,5 +53,35 @@ public class UserBean {
 	 */
 	public void setDayLimit(int dayLimit) {
 		this.dayLimit = dayLimit;
+	}
+
+	/**
+	 * @return the categories
+	 */
+	public String getCategories() {
+		return categories;
+	}
+
+	/**
+	 * @param categories
+	 *            the categories to set
+	 */
+	public void setCategories(String categories) {
+		this.categories = categories;
+	}
+
+	/**
+	 * @return the type
+	 */
+	public String getType() {
+		return type;
+	}
+
+	/**
+	 * @param type
+	 *            the type to set
+	 */
+	public void setType(String type) {
+		this.type = type;
 	}
 }

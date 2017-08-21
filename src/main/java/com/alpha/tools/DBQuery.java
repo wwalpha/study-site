@@ -237,12 +237,6 @@ class DBQuery<T> {
 			String hostname = System.getProperty("RDS_HOSTNAME");
 			String port = System.getProperty("RDS_PORT");
 
-			dbName = "StudySite";
-			userName = "wwalpha";
-			password = "session10";
-			hostname = "alpha.cinlbecofvo4.ap-northeast-1.rds.amazonaws.com";
-			port = "3306";
-
 			String jdbcUrl = "jdbc:mysql://" + hostname + ":" + port + "/" + dbName + "?user=" + userName + "&password="
 					+ password + "&useUnicode=true&characterEncoding=utf8&autoReconnect=true&useSSL=true";
 

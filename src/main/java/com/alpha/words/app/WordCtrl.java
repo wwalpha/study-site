@@ -42,7 +42,7 @@ public class WordCtrl {
 	}
 
 	@RequestMapping("/{user}/statistic")
-	public ResponseEntity<StatisticBean> statistic(@PathVariable String user) {
+	public ResponseEntity<List<StatisticBean>> statistic(@PathVariable String user) {
 		return ResponseEntity.ok(Utils.getStatistic(user));
 	}
 
