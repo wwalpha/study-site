@@ -17,6 +17,7 @@ import java.util.stream.IntStream;
 
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 
 class DBQuery<T> {
 
@@ -189,9 +190,9 @@ class DBQuery<T> {
 			} else if (field.getType().equals(boolean.class) || field.getType().equals(Boolean.class)) {
 				field.setBoolean(bean, BooleanUtils.toBoolean(Integer.parseInt(rs.getString(i)), 1, 0));
 			} else if (field.getType().equals(int.class)) {
-				field.setInt(bean, Integer.parseInt(rs.getString(i)));
+				field.setInt(bean, NumberUtils.createInteger(rs.getString(i)));
 			} else if (field.getType().equals(Integer.class)) {
-				field.set(bean, Integer.valueOf(rs.getString(i)));
+				field.set(bean, NumberUtils.createInteger(rs.getString(i)));
 			}
 		}
 

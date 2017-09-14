@@ -94,7 +94,7 @@ public class Utils {
 	public static List<WordBean> getNextList(String userName, String type, String categories) {
 		UserBean userBean = userMap.get(userName);
 
-		if (StringUtils.equals(userBean.getCategories(), categories) || StringUtils.equals(userBean.getType(), type)) {
+		if (!StringUtils.equals(userBean.getCategories(), categories) || !StringUtils.equals(userBean.getType(), type)) {
 			userBean.setCategories(categories);
 			userBean.setType(type);
 
