@@ -11,7 +11,9 @@ public class ScoreBean {
 	private String opt2;
 	private String opt3;
 	private String opt4;
-
+	
+	private Integer answer;
+	private Integer answerPos;
 	private String success;
 
 	/**
@@ -162,6 +164,34 @@ public class ScoreBean {
 	 */
 	public void setSuccess(String success) {
 		this.success = success;
+	}
+
+	/**
+	 * @return the answerPos
+	 */
+	public Integer getAnswerPos() {
+		return answerPos;
+	}
+
+	/**
+	 * @param answerPos the answerPos to set
+	 */
+	public void setAnswerPos(Integer answerPos) {
+		this.answerPos = answerPos;
+	}
+
+	/**
+	 * @return the answer
+	 */
+	public Integer getAnswer() {
+		return answer;
+	}
+
+	/**
+	 * @param answer the answer to set
+	 */
+	public void setAnswer(Integer answer) {
+		this.answer = answer;
 	}
 
 }

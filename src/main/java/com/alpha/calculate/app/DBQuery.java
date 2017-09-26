@@ -17,8 +17,6 @@ import com.alpha.tools.XFileUtils;
 
 public class DBQuery {
 
-	public static final String SELECT_CALC_HISTORY = "SELECT NUM1, NUM2, NUM3, OPT1, OPT2, SUCCESS FROM CALC_HISTORY WHERE REGIST_TIME = (SELECT MAX(REGIST_TIME) FROM CALC_HISTORY) ORDER BY HISTORYNO";
-
 	public static final String SELECT_ADD_SINGLE_ALL = "SELECT NUM1, NUM2, NUM3, NUM4, NUM5, TIMES, OPT1, OPT2, OPT3, OPT4 FROM CALCULATE WHERE OPT1 = '+' AND OPT2 = '=' AND NUM1 < 10 AND NUM2 < 10 ";
 	public static final String SELECT_MINUS_SINGLE_ALL = "SELECT NUM1, NUM2, NUM3, NUM4, NUM5, TIMES, OPT1, OPT2, OPT3, OPT4 FROM CALCULATE WHERE OPT1 = '-' AND OPT2 = '=' AND NUM1 < 10 AND NUM2 < 10 ";
 
@@ -80,7 +78,7 @@ public class DBQuery {
 	}
 
 	public List<ScoreBean> getScores() {
-		return DBUtils.select(ScoreBean.class, SELECT_CALC_HISTORY);
+		return DBUtils.select(ScoreBean.class, XFileUtils.getSQL("SELECT_CALC_HISTORY"));
 	}
 
 	public int updateResult(CalculateBean calcInfo) {
