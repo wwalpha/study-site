@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.alpha.calculate.bean.CalculateBean;
@@ -16,22 +17,29 @@ import com.alpha.calculate.bean.ScoreBean;
 @CrossOrigin
 public class CalcCtrl {
 
-	@RequestMapping(value = "/addsingle", method = RequestMethod.GET)
-	public ResponseEntity<CalculateBean> getAddSingle() {
-		return ResponseEntity.ok(Utils.getAddSingle());
+	@RequestMapping(value = "/next", method = RequestMethod.GET)
+	public ResponseEntity<CalculateBean> next(@RequestParam("options") String options) {
+		return ResponseEntity.ok(Utils.getNext(options));
 	}
 	
-	@RequestMapping(value = "/minsingle", method = RequestMethod.GET)
-	public ResponseEntity<CalculateBean> getMinusSingle() {
-		return ResponseEntity.ok(Utils.getMinusSingle());
-	}
-
 	@RequestMapping(value = "/answer", method = RequestMethod.POST)
 	public ResponseEntity<String> answer(@RequestBody CalculateBean calcInfo) {
 		Utils.updateResult(calcInfo);
 
 		return ResponseEntity.noContent().build();
 	}
+
+//	@RequestMapping(value = "/add", method = RequestMethod.GET)
+//	public ResponseEntity<CalculateBean> getAdd(@RequestParam("options") String options) {
+//		return ResponseEntity.ok(Utils.getAddSingle());
+//	}
+//	
+//	@RequestMapping(value = "/minus", method = RequestMethod.GET)
+//	public ResponseEntity<CalculateBean> g(@RequestParam("options") String options) {
+//		return ResponseEntity.ok(Utils.getMinusSingle());
+//	}
+
+
 
 	@RequestMapping(value = "/score", method = RequestMethod.GET)
 	public ResponseEntity<List<ScoreBean>> score() {

@@ -12,8 +12,12 @@ public class CalculateBean {
 	private String opt3;
 	private String opt4;
 
+	private int answerPos;
+	private int answer;
 	private int times;
 	private String startTime;
+
+	private String options;
 
 	/**
 	 * @return the num1
@@ -178,6 +182,48 @@ public class CalculateBean {
 	 */
 	public void setStartTime(String startTime) {
 		this.startTime = startTime;
+	}
+
+	/**
+	 * @return the answerPos
+	 */
+	public int getAnswerPos() {
+		return answerPos;
+	}
+
+	/**
+	 * @param answerPos the answerPos to set
+	 */
+	public void setAnswerPos(int answerPos) {
+		this.answerPos = answerPos;
+	}
+
+	/**
+	 * @return the options
+	 */
+	public String getOptions() {
+		return options;
+	}
+
+	/**
+	 * @param options the options to set
+	 */
+	public void setOptions(String options) {
+		this.options = options;
+	}
+
+	/**
+	 * @return the answer
+	 */
+	public int getAnswer() {
+		return answer;
+	}
+
+	/**
+	 * @param answer the answer to set
+	 */
+	public void setAnswer(int answer) {
+		this.answer = answer;
 	}
 
 }

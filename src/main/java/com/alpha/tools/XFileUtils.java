@@ -8,7 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
+import javax.servlet.ServletContext;
+
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 public class XFileUtils {
 
@@ -37,12 +42,30 @@ public class XFileUtils {
 		return properties;
 	}
 
-	public static List<String> readLines(File file, String encode) {
+	public static List<String> readLines(File file, String encoding) {
 		try {
-			return FileUtils.readLines(file, "UTF-8");
+			return FileUtils.readLines(file, encoding);
 		} catch (IOException e) {
 		}
 
 		return new ArrayList<>();
+	}
+
+	public static String getSQL(String fileName) {
+		String filePath = getContext().getRealPath("/WEB-INF/classes/sql/" + fileName + ".sql");
+		
+		System.out.print(filePath + ":");
+		System.out.println(new File(filePath).exists());
+		try {
+			return FileUtils.readFileToString(new File(filePath), "UTF-8");
+		} catch (IOException e) {
+		}
+
+		return StringUtils.EMPTY;
+	}
+
+	private static ServletContext getContext() {
+		return ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest()
+				.getServletContext();
 	}
 }

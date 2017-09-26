@@ -16,8 +16,8 @@ public class Utils {
 		query = new DBQuery();
 	}
 
-	public static CalculateBean getAddSingle() {
-		List<CalculateBean> retList = query.addSingle();
+	public static CalculateBean getNext(String options) {
+		List<CalculateBean> retList = query.next(options);
 
 		int maxTimes = retList.stream().max(Comparator.comparingInt(k -> k.getTimes())).get().getTimes();
 
@@ -30,12 +30,28 @@ public class Utils {
 
 		return getRandom(getNewList(retList));
 	}
-
-	public static CalculateBean getMinusSingle() {
-		List<CalculateBean> retList = query.minusSingle();
-
-		return getRandom(getNewList(retList));
-	}
+//
+//	public static CalculateBean getAddSingle(String options) {
+//
+//		List<CalculateBean> retList = query.addSingle();
+//
+//		int maxTimes = retList.stream().max(Comparator.comparingInt(k -> k.getTimes())).get().getTimes();
+//
+//		List<CalculateBean> newList = retList.stream().filter(p -> p.getTimes() == (maxTimes - 1))
+//				.collect(Collectors.toList());
+//
+//		if (newList.size() == 0) {
+//			newList = retList;
+//		}
+//
+//		return getRandom(getNewList(retList));
+//	}
+//
+//	public static CalculateBean getMinusSingle() {
+//		List<CalculateBean> retList = query.minusSingle();
+//
+//		return getRandom(getNewList(retList));
+//	}
 
 	public static void updateResult(CalculateBean calcInfo) {
 		query.updateResult(calcInfo);

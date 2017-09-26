@@ -76,38 +76,6 @@ public class WordCtrl {
 		return ResponseEntity.ok(Utils.getNextList(user, type, categories));
 	}
 
-	// /**
-	// * user download
-	// *
-	// * @param user
-	// * @return
-	// */
-	// @RequestMapping(value = "/{user}/download", method = RequestMethod.GET,
-	// produces = "application/json")
-	// public ResponseEntity<List<String>> download(@PathVariable String user) {
-	// List<String> list = new ArrayList<String>();
-	// list.add(WordUtils.download(user));
-	//
-	// return ResponseEntity.ok(list);
-	// }
-	//
-	// /**
-	// * user upload
-	// *
-	// * @param user
-	// * @param fileData
-	// * @return
-	// */
-	// @RequestMapping(value = "/{user}/upload", method = RequestMethod.POST)
-	// public ResponseEntity<String> upload(@PathVariable String user,
-	// MultipartFile
-	// file) {
-	// boolean result = WordUtils.upload(user, file);
-	//
-	// return result ? ResponseEntity.ok().build() :
-	// ResponseEntity.noContent().build();
-	// }
-
 	/**
 	 * user playlist
 	 * 
@@ -118,18 +86,4 @@ public class WordCtrl {
 	public ResponseEntity<List<PlayListBean>> playlist(@PathVariable String user) {
 		return ResponseEntity.ok(Utils.getPlayList(user));
 	}
-
-	// /**
-	// * settings
-	// *
-	// * @param file
-	// * @return
-	// */
-	// @RequestMapping(value = "/settings", method = RequestMethod.POST)
-	// public ResponseEntity<String> settings(MultipartFile file) {
-	// boolean result = false;// WordUtils3.updateSettings(file);
-	//
-	// return result ? ResponseEntity.ok().build() :
-	// ResponseEntity.noContent().build();
-	// }
 }
