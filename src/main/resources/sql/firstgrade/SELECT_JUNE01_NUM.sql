@@ -1,0 +1,12 @@
+SELECT
+  NUM1
+  , NUM2
+  , NUM3
+  , OPT1
+  , TIMES
+FROM
+  CALCULATE
+WHERE
+  NUM3 <= 10
+  AND OPT1 = '+'
+  AND OPT1 = '='

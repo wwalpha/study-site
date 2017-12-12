@@ -101,7 +101,7 @@ public class DBQuery {
 
 		sb.append(DBUtils.SELECT_NEWWORD);
 		sb.append(getInSQL(categories));
-		sb.append("ORDER BY TIMES, NEXT_TIME DESC LIMIT 49");
+		sb.append("ORDER BY TIMES, NEXT_TIME, RAND() DESC LIMIT 49");
 
 		return sb.toString();
 	}

@@ -23,4 +23,14 @@ public interface Constants {
 		public static final String BUG = "5";
 		public static final String UNDER10 = "6";
 	}
+	
+	public final class FirstGrade{
+		private FirstGrade() {
+		}
+		
+		public static final String JUNE01 = "0601";
+		
+		
+		
+	}
 }

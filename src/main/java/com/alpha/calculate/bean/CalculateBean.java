@@ -16,7 +16,7 @@ public class CalculateBean {
 	private int answer;
 	private int times;
 	private String startTime;
-
+	private String question;
 	private String options;
 
 	/**
@@ -224,6 +224,20 @@ public class CalculateBean {
 	 */
 	public void setAnswer(int answer) {
 		this.answer = answer;
+	}
+
+	/**
+	 * @return the question
+	 */
+	public String getQuestion() {
+		return question;
+	}
+
+	/**
+	 * @param question the question to set
+	 */
+	public void setQuestion(String question) {
+		this.question = question;
 	}
 
 }

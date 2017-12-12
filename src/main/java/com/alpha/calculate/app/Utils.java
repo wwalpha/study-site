@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.alpha.calculate.bean.CalculateBean;
 import com.alpha.calculate.bean.ScoreBean;
 
@@ -19,9 +21,9 @@ public class Utils {
 	public static CalculateBean getNext(String options) {
 		List<CalculateBean> retList = query.next(options);
 
-		int maxTimes = retList.stream().max(Comparator.comparingInt(k -> k.getTimes())).get().getTimes();
+		int minTimes = retList.stream().min(Comparator.comparingInt(k -> k.getTimes())).get().getTimes();
 
-		List<CalculateBean> newList = retList.stream().filter(p -> p.getTimes() == (maxTimes - 1))
+		List<CalculateBean> newList = retList.stream().filter(p -> p.getTimes() == (minTimes - 1))
 				.collect(Collectors.toList());
 
 		if (newList.size() == 0) {
@@ -30,6 +32,19 @@ public class Utils {
 
 		return getRandom(getNewList(retList));
 	}
+	
+	public static CalculateBean getNext(String grade, String type) {
+		return null;
+//		if (StringUtils.equals(grade, "1")) {
+//			switch(type) {
+//				case "0601":
+//					june
+//					break;
+//			}
+//			
+//		}
+	}
+
 //
 //	public static CalculateBean getAddSingle(String options) {
 //

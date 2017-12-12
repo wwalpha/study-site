@@ -55,7 +55,7 @@ public class DBQuery {
 				conditions.get("OPT").add("'/'");
 			}
 			if (StringUtils.equals(row, CalcOptions.BUG)) {
-				whereSQL.add("NUM3 < 10");
+				whereSQL.add("NUM3 <= 10");
 			}
 		});
 
