@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?><project-modules id="moduleCoreId" project-version="1.5.0">
-    <wb-module deploy-name="studysite-1.0.0">
+    <wb-module deploy-name="StudySite-2.0.0">
+        <wb-resource deploy-path="/" source-path="/target/m2e-wtp/web-resources"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/java"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src/main/resources"/>
-        <wb-resource deploy-path="/" source-path="/src/main/webapp" tag="defaultRootSource"/>
-        <property name="java-output-path" value="/StudySite/target/classes"/>
-        <property name="context-root" value="studysite"/>
+        <wb-resource deploy-path="/WEB-INF/" source-path="/src/main/webapp" tag="defaultRootSource"/>
+        <property name="context-root" value="StudySite"/>
+        <property name="java-output-path" value="/StudySite4/target/classes"/>
     </wb-module>
 </project-modules>
